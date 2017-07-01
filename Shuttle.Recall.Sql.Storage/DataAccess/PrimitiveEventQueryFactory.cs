@@ -32,10 +32,10 @@ namespace Shuttle.Recall.Sql.Storage
             return new RawQuery(_scriptProvider.Get("EventStore.GetEventStream")).AddParameterValue(EventStoreColumns.Id, id);
         }
 
-        public IQuery GetProjectionEvents(long fromSequenceNumber, IEnumerable<Type> eventTypes, int limit)
+        public IQuery GetSpecified(long fromSequenceNumber, IEnumerable<Type> eventTypes, int limit)
         {
             return
-                new RawQuery(string.Format(_scriptProvider.Get("EventStore.GetProjectionEvents"), limit,
+                new RawQuery(string.Format(_scriptProvider.Get("EventStore.GetSpecified"), limit,
                     eventTypes == null
                         ? string.Empty
                         : string.Format("and EventType in ({0})",

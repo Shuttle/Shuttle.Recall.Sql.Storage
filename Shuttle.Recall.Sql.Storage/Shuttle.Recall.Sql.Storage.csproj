@@ -61,12 +61,12 @@
       <HintPath>..\packages\Shuttle.Core.Data.8.0.0\lib\net40-full\Shuttle.Core.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=8.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.8.0.1\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=8.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.8.0.2\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Shuttle.Recall, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Recall.8.0.0\lib\net40-full\Shuttle.Recall.dll</HintPath>
+    <Reference Include="Shuttle.Recall, Version=8.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Recall.8.1.3\lib\net40-full\Shuttle.Recall.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -90,11 +90,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptProvider.cs" />
     <Compile Include="ScriptProviderConfiguration.cs" />
-    <Compile Include="SqlEventStoreResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SqlEventStoreResources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".scripts\System.Data.SqlClient\EventStoreCreate.sql">
@@ -103,9 +98,6 @@
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveEventStream.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="SqlEventStoreResources.resx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetEventStream.sql" />
@@ -122,6 +114,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\SnapshotStore.Save.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetSpecified.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

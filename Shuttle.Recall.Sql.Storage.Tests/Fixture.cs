@@ -35,11 +35,6 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderProcessId));
                 DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderId));
             }
-
-            using (DatabaseContextFactory.Create(EventStoreProjectionConnectionStringName))
-			{
-                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from ProjectionPosition"));
-            }
         }
 	}
 }
