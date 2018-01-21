@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Runtime.Remoting.Messaging;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
-using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -11,7 +10,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public KeyStoreQueryFactory(IScriptProvider scriptProvider)
         {
-            Guard.AgainstNull(scriptProvider, "scriptProvider");
+            Guard.AgainstNull(scriptProvider, nameof(scriptProvider));
 
             _scriptProvider = scriptProvider;
         }

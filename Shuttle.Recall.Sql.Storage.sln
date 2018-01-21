@@ -1,21 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage", "Shuttle.Recall.Sql.Storage\Shuttle.Recall.Sql.Storage.csproj", "{8B9CB073-9BED-46A5-951F-97473CE9D895}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage", "Shuttle.Recall.Sql.Storage\Shuttle.Recall.Sql.Storage.csproj", "{759B3D91-A3E1-4454-826A-AD208A3C8759}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage.Tests", "Shuttle.Recall.Sql.Storage.Tests\Shuttle.Recall.Sql.Storage.Tests.csproj", "{3F82B456-D536-4E9C-B4DB-B8E32E87AFFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage.Tests", "Shuttle.Recall.Sql.Storage.Tests\Shuttle.Recall.Sql.Storage.Tests.csproj", "{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{E270853E-0A7D-456A-859A-6EDC932DB196}"
-	ProjectSection(SolutionItems) = preProject
-		.build\package.msbuild = .build\package.msbuild
-		.build\package.nuspec = .build\package.nuspec
-		.build\Shuttle.Core.MSBuild.dll = .build\Shuttle.Core.MSBuild.dll
-		.build\Shuttle.Core.MSBuild.targets = .build\Shuttle.Core.MSBuild.targets
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{77740C93-0ED7-4764-AE7C-8B81A4CC1F4F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67261EB1-3F84-4659-AA26-E999C40611A4}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
@@ -27,16 +19,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8B9CB073-9BED-46A5-951F-97473CE9D895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B9CB073-9BED-46A5-951F-97473CE9D895}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B9CB073-9BED-46A5-951F-97473CE9D895}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B9CB073-9BED-46A5-951F-97473CE9D895}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F82B456-D536-4E9C-B4DB-B8E32E87AFFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F82B456-D536-4E9C-B4DB-B8E32E87AFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F82B456-D536-4E9C-B4DB-B8E32E87AFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F82B456-D536-4E9C-B4DB-B8E32E87AFFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{759B3D91-A3E1-4454-826A-AD208A3C8759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{759B3D91-A3E1-4454-826A-AD208A3C8759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{759B3D91-A3E1-4454-826A-AD208A3C8759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{759B3D91-A3E1-4454-826A-AD208A3C8759}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38F4E3C0-F194-474B-AC30-FBAA6A35607B}
 	EndGlobalSection
 EndGlobal

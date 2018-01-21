@@ -1,8 +1,8 @@
 ﻿using Castle.Windsor;
 using NUnit.Framework;
 using Shuttle.Core.Castle;
+using Shuttle.Core.Container;
 using Shuttle.Core.Data;
-using Shuttle.Core.Infrastructure;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests

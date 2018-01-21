@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Shuttle.Core.Data;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests

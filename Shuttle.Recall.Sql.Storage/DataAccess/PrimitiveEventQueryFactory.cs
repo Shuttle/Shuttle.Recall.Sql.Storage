@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
-using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -12,7 +12,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public PrimitiveEventQueryFactory(IScriptProvider scriptProvider)
         {
-            Guard.AgainstNull(scriptProvider, "scriptProvider");
+            Guard.AgainstNull(scriptProvider, nameof(scriptProvider));
 
             _scriptProvider = scriptProvider;
         }

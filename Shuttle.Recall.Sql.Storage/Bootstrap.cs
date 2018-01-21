@@ -1,5 +1,6 @@
-﻿using Shuttle.Core.Data;
-using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Container;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Data;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -7,7 +8,7 @@ namespace Shuttle.Recall.Sql.Storage
 	{
 		public void Register(IComponentRegistry registry)
 		{
-			Guard.AgainstNull(registry, "registry");
+			Guard.AgainstNull(registry, nameof(registry));
 
 			registry.AttemptRegister<IScriptProviderConfiguration, ScriptProviderConfiguration>();
 			registry.AttemptRegister<IScriptProvider, ScriptProvider>();
