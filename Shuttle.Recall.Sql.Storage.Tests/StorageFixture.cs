@@ -1,4 +1,5 @@
 ﻿using Castle.Windsor;
+using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Castle;
 using Shuttle.Core.Container;
@@ -13,6 +14,8 @@ namespace Shuttle.Recall.Sql.Storage.Tests
         public void ExerciseStorage()
         {
             var container = new WindsorComponentContainer(new WindsorContainer());
+
+            container.RegisterInstance(new Mock<IProjectionRepository>().Object);
 
             EventStore.Register(container);
 

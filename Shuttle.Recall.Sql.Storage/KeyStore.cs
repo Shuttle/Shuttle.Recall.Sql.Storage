@@ -40,7 +40,19 @@ namespace Shuttle.Recall.Sql.Storage
 
         public void Add(Guid id, string key)
         {
-            _databaseGateway.ExecuteUsing(_queryFactory.Add(id, key));
+            try
+            {
+                _databaseGateway.ExecuteUsing(_queryFactory.Add(id, key));
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.ToLower().Contains("violation of primary key constraint"))
+                {
+                    throw new DuplicateKeyException(id, key);
+                }
+
+                throw;
+            }
         }
     }
 }
