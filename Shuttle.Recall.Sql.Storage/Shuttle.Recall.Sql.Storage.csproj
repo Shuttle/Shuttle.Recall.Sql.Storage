@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Shuttle.Core.Data" Version="10.0.7" />
+    <PackageReference Include="Shuttle.Core.Data" Version="10.0.8" />
     <PackageReference Include="Shuttle.Recall" Version="10.0.1" />
   </ItemGroup>
 
