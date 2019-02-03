@@ -1,9 +1,7 @@
-﻿using Moq;
+﻿using System.Data.Common;
+using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Data;
-#if (NETCOREAPP2_0 || NETSTANDARD2_0)
-using Shuttle.Core.Data.SqlClient;
-#endif
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -16,10 +14,14 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 		[SetUp]
 		public void TestSetUp()
 		{
+#if (NETCOREAPP2_1 || NETSTANDARD2_0)
+            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+#endif
+
 			DatabaseGateway = new DatabaseGateway();
             DatabaseContextCache = new ThreadStaticDatabaseContextCache();
 
-#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+#if (!NETCOREAPP2_1 && !NETSTANDARD2_0)
             DatabaseContextFactory = new DatabaseContextFactory(
                 new ConnectionConfigurationProvider(),
                 new DbConnectionFactory(), 
@@ -36,7 +38,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
 		    DatabaseContextFactory = new DatabaseContextFactory(
 		        connectionConfigurationProvider.Object,
-		        new DbConnectionFactory(new DbProviderFactories()),
+		        new DbConnectionFactory(),
 		        new DbCommandFactory(),
 		        new ThreadStaticDatabaseContextCache());
 #endif

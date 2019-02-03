@@ -1,4 +1,4 @@
-﻿select top {0}
+﻿select
 	[Id],
 	[Version],
 	[EventType],
@@ -8,7 +8,9 @@
 from 
 	[dbo].[EventStore] 
 where 
-	SequenceNumber > @SequenceNumber
-	{1}
+	SequenceNumber >= @FromSequenceNumber
+and
+	SequenceNumber <= @ToSequenceNumber
+	{0}
 order by
 	[SequenceNumber]

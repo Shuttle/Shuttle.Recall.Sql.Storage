@@ -2,9 +2,6 @@
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
-#if (NETCOREAPP2_0 || NETSTANDARD2_0)
-using Shuttle.Core.Data.SqlClient;
-#endif
 
 namespace Shuttle.Recall.Sql.Storage.Tests
 {
@@ -14,9 +11,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
         {
             Guard.AgainstNull(registry, nameof(registry));
 
-#if (NETCOREAPP2_0 || NETSTANDARD2_0)
-            registry.Register<IDbProviderFactories, DbProviderFactories>();
-
+#if (NETCOREAPP2_1 || NETSTANDARD2_0)
             var connectionConfigurationProvider = new Mock<IConnectionConfigurationProvider>();
 
             connectionConfigurationProvider.Setup(m => m.Get(It.IsAny<string>())).Returns((string name) =>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;net462;net47;net471;netstandard2.0;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
     <None Include=".build\Shuttle.MSBuild.dll" />
     <None Include=".build\Shuttle.MSBuild.targets" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetEventStream.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetSpecified.sql" />
+    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Get.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveEventStream.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Save.sql" />
