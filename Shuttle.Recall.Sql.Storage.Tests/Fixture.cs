@@ -14,10 +14,6 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 		[SetUp]
 		public void TestSetUp()
 		{
-#if (NETCOREAPP2_1 || NETSTANDARD2_0)
-            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
-#endif
-
 			DatabaseGateway = new DatabaseGateway();
             DatabaseContextCache = new ThreadStaticDatabaseContextCache();
 
@@ -28,7 +24,9 @@ namespace Shuttle.Recall.Sql.Storage.Tests
                 new DbCommandFactory(), 
                 new ThreadStaticDatabaseContextCache());
 #else
-		    var connectionConfigurationProvider = new Mock<IConnectionConfigurationProvider>();
+            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+
+            var connectionConfigurationProvider = new Mock<IConnectionConfigurationProvider>();
 
 		    connectionConfigurationProvider.Setup(m => m.Get(It.IsAny<string>())).Returns(
 		        new ConnectionConfiguration(
