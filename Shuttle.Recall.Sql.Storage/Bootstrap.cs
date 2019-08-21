@@ -23,6 +23,8 @@ namespace Shuttle.Recall.Sql.Storage
 			registry.AttemptRegister<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
 			registry.AttemptRegister<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
 			registry.AttemptRegister<IKeyStore, KeyStore>();
+			registry.AttemptRegister<IEventTypeStore, EventTypeStore>();
+			registry.AttemptRegister<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
 		}
 	}
 }

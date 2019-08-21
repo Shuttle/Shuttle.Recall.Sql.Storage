@@ -2,8 +2,9 @@
 (
 	[Id],
 	[Version],
-	[EventType],
+	[EventTypeId],
 	[EventEnvelope],
+	[EventId],
 	[IsSnapshot],
 	[DateRegistered]	
 )
@@ -11,8 +12,9 @@ values
 (
 	@Id,
 	@Version,
-	@EventType,
+	@EventTypeId,
 	@EventEnvelope,
+	@EventId,
 	@IsSnapshot,
 	@DateRegistered
 )

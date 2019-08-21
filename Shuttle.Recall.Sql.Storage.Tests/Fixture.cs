@@ -55,12 +55,12 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 		{
 			using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
 			{
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderId));
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderProcessId));
-			    DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderId));
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderProcessId));
-                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderId));
-                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(EventStoreColumns.Id, RecallFixture.OrderProcessId));
+				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
+			    DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
+                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
             }
         }
 	}

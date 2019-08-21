@@ -11,7 +11,8 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IQueryMapper _queryMapper;
         private readonly IPrimitiveEventQueryFactory _queryFactory;
 
-        public PrimitiveEventRepository(IDatabaseGateway databaseGateway, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory)
+        public PrimitiveEventRepository(IDatabaseGateway databaseGateway, IQueryMapper queryMapper,
+            IPrimitiveEventQueryFactory queryFactory)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             Guard.AgainstNull(queryMapper, nameof(queryMapper));

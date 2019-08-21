@@ -5,35 +5,27 @@ select
 from 
 	[dbo].[SnapshotStore] 
 where 
-	Id = @Id
+	Id = @Id;
 
-if (@Version is null)
-	select
-		[Id],
-		[Version],
-		[EventType],
-		[EventEnvelope],
-		[SequenceNumber],
-		[DateRegistered]
-	from 
-		[dbo].[EventStore] 
-	where 
-		Id = @Id
-	order by
-		[Version]
-else
-	select
-		[Id],
-		[Version],
-		[EventType],
-		[EventEnvelope],
-		[SequenceNumber],
-		[DateRegistered]
-	from 
-		[dbo].[EventStore] 
-	where 
-		Id = @Id
-	and
+select
+	es.[Id],
+	es.[Version],
+	et.[TypeName] EventType,
+	es.[EventEnvelope],
+	es.[EventId],
+	es.[SequenceNumber],
+	es.[DateRegistered]
+from 
+	[dbo].[EventStore] es
+inner join
+	[dbo].[EventType] et on et.Id = es.EventTypeId
+where
+	es.Id = @Id
+and
+	(
+		@Version is null
+		or
 		[Version] >= @Version
-	order by
-		[Version]
+	)
+order by
+	[Version]

@@ -1,16 +1,19 @@
 ﻿select
-	[Id],
-	[Version],
-	[EventType],
-	[EventEnvelope],
-	[SequenceNumber],
-	[DateRegistered]
+	es.[Id],
+	es.[Version],
+	et.[TypeName] EventType,
+	es.[EventEnvelope],
+	es.[EventId],
+	es.[SequenceNumber],
+	es.[DateRegistered]
 from 
-	[dbo].[EventStore] 
+	[dbo].[EventStore] es
+inner join
+	[dbo].[EventType] et on et.Id = es.EventTypeId
 where 
-	SequenceNumber >= @FromSequenceNumber
+	es.SequenceNumber >= @FromSequenceNumber
 and
-	SequenceNumber <= @ToSequenceNumber
+	es.SequenceNumber <= @ToSequenceNumber
 	{0}
 order by
-	[SequenceNumber]
+	es.SequenceNumber
