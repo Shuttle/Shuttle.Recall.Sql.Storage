@@ -13,6 +13,8 @@ namespace Shuttle.Recall.Sql.Storage
 			registry.AttemptRegister<IScriptProviderConfiguration, ScriptProviderConfiguration>();
 			registry.AttemptRegister<IScriptProvider, ScriptProvider>();
 
+            registry.AttemptRegister<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
+
 			registry.AttemptRegister<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
 			registry.AttemptRegister<IDatabaseContextFactory, DatabaseContextFactory>();
 			registry.AttemptRegister<IDbConnectionFactory, DbConnectionFactory>();
