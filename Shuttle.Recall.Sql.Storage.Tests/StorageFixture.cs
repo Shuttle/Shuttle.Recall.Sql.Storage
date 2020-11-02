@@ -3,7 +3,6 @@ using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Castle;
 using Shuttle.Core.Container;
-using Shuttle.Core.Data;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -19,7 +18,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
             EventStore.Register(container);
 
-            using (container.Resolve<IDatabaseContextFactory>().Create(EventStoreConnectionStringName))
+            using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
             {
                 RecallFixture.ExerciseStorage(EventStore.Create(container));
             }
