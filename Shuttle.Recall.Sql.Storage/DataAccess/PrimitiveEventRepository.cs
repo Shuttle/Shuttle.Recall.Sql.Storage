@@ -34,9 +34,9 @@ namespace Shuttle.Recall.Sql.Storage
             return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.GetEventStream(id));
         }
 
-        public IEnumerable<PrimitiveEvent> Get(long fromSequenceNumber, long toSequenceNumber, IEnumerable<Type> eventTypes)
+        public IEnumerable<PrimitiveEvent> Fetch(long fromSequenceNumber, int fetchCount, IEnumerable<Type> eventTypes)
         {
-            return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.Get(fromSequenceNumber, toSequenceNumber, eventTypes));
+            return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.Fetch(fromSequenceNumber, fetchCount, eventTypes));
         }
 
         public void Save(PrimitiveEvent primitiveEvent)

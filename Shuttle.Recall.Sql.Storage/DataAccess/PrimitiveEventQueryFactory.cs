@@ -35,17 +35,19 @@ namespace Shuttle.Recall.Sql.Storage
             return new RawQuery(_scriptProvider.Get("EventStore.GetEventStream")).AddParameterValue(Columns.Id, id);
         }
 
-        public IQuery Get(long fromSequenceNumber, long toSequenceNumber, IEnumerable<Type> eventTypes)
+        public IQuery Fetch(long fromSequenceNumber, int fetchCount, IEnumerable<Type> eventTypes)
         {
             var eventTypeIds = eventTypes.Select(eventType => _eventTypeStore.GetId(eventType.FullName)).ToList();
 
             return
-                new RawQuery(string.Format(_scriptProvider.Get("EventStore.Get"),
+                new RawQuery(string.Format(_scriptProvider.Get("EventStore.Fetch"),
+                        fetchCount>0
+                            ? fetchCount
+                                : 1,
                         !eventTypeIds.Any()
                             ? string.Empty
                             : $"and EventTypeId in ({string.Join(",", eventTypeIds.Select(id => string.Concat("'", id, "'")).ToArray())})"))
-                    .AddParameterValue(Columns.FromSequenceNumber, fromSequenceNumber)
-                    .AddParameterValue(Columns.ToSequenceNumber, toSequenceNumber);
+                    .AddParameterValue(Columns.FromSequenceNumber, fromSequenceNumber);
         }
 
         public IQuery SaveEvent(PrimitiveEvent primitiveEvent)
