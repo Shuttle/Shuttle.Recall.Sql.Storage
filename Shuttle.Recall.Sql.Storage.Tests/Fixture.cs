@@ -20,7 +20,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
                 new ConnectionConfiguration(
                     "Shuttle",
                     "System.Data.SqlClient",
-                    "Data Source=.;Initial Catalog=Shuttle;Integrated Security=SSPI;"));
+                    "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI;"));
 
             DatabaseContextFactory = new DatabaseContextFactory(
                 connectionConfigurationProvider.Object,
