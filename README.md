@@ -2,14 +2,18 @@
 
 A Sql Server implementation of the `Shuttle.Recall` event sourcing `EventStore`.
 
-### Event Sourcing
+# Registration
 
-~~~ c#
+The required components may be registered by calling `ComponentRegistryExtensions.RegisterEventStoreStorage(IComponentRegistry)`.
+
+## Event Store
+
+``` c#
 // use any of the supported DI containers
 var container = new WindsorComponentContainer(new WindsorContainer());
 
-EventStore.Register(container);
+container.RegisterEventStoreStorage();
 
-var eventStore = EventStore.Create(container);
-~~~
+var eventStore = container.Resolve<IEventStore>();
+```
 
