@@ -1,0 +1,1 @@
+﻿delete from dbo.KeyStore where [Id] = @Id

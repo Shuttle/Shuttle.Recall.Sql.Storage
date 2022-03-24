@@ -1,4 +1,8 @@
-# Shuttle.Recall.Sql.Storage
+# Sql Server
+
+```
+PM> Install-Package Shuttle.Recall.Sql.Storage
+```
 
 A Sql Server implementation of the `Shuttle.Recall` event sourcing `EventStore`.
 

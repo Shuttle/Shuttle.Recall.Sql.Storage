@@ -1,0 +1,1 @@
+﻿delete from [dbo].[SnapshotStore] where Id = @Id
