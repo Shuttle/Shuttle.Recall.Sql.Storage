@@ -1,9 +1,9 @@
-﻿using Castle.Windsor;
-using Moq;
+﻿using Moq;
+using Ninject;
 using NUnit.Framework;
-using Shuttle.Core.Castle;
 using Shuttle.Core.Container;
 using Shuttle.Core.Data;
+using Shuttle.Core.Ninject;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -13,7 +13,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
         [Test]
         public void ExerciseStorage()
         {
-            var container = new WindsorComponentContainer(new WindsorContainer());
+            var container = new NinjectComponentContainer(new StandardKernel());
 
             container.RegisterInstance(new Mock<IProjectionRepository>().Object);
 
