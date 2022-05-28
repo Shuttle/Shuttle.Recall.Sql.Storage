@@ -1,56 +1,84 @@
 ﻿using System;
+using System.Transactions;
 using NUnit.Framework;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
 {
-	public class KeyStoreFixture : Fixture
-	{
-	    public static readonly Guid OrderId = new Guid("047FF6FB-FB57-4F63-8795-99F252EDA62F");
+    public class KeyStoreFixture : Fixture
+    {
+        public static readonly Guid Id = new("047FF6FB-FB57-4F63-8795-99F252EDA62F");
 
         [Test]
-		public void Should_be_able_to_use_key_store()
-		{
-			var store = new KeyStore(DatabaseGateway,
-				new KeyStoreQueryFactory(new ScriptProvider(new ScriptProviderConfiguration())));
+        public void Should_be_able_to_use_key_store()
+        {
+            var store = new KeyStore(DatabaseGateway,
+                new KeyStoreQueryFactory(new ScriptProvider(new ScriptProviderConfiguration())));
 
-			using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
-			{
-			    var id = OrderId;
+            using (new TransactionScope())
+            using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
+            {
+                var keyA = string.Concat("a=", Id.ToString());
+                var keyB = string.Concat("b=", Id.ToString());
 
-			    var value = string.Concat("value=", id.ToString());
-			    var anotherValue = string.Concat("anotherValue=", id.ToString());
+                store.Add(Id, keyA);
 
-			    store.Add(id, value);
+                Assert.Throws<DuplicateKeyException>(() => store.Add(Id, keyA),
+                    $"Should not be able to add duplicate key / id = {Id} / key = '{keyA}' / (ensure that your implementation throws a `DuplicateKeyException`)");
 
-			    Assert.Throws<DuplicateKeyException>(() => store.Add(id, value),
-			        $"Should not be able to add duplicate key / id = {id} / key = '{value}' / (ensure that your implementation throws a `DuplicateKeyException`)");
+                var id = store.Get(keyA);
 
-			    var idGet = store.Get(value);
+                Assert.That(id, Is.Not.Null,
+                    $"Should be able to retrieve the id of the associated key / id = {Id} / key = '{keyA}'");
+                Assert.That(id, Is.EqualTo(Id),
+                    $"Should be able to retrieve the correct id of the associated key / id = {Id} / key = '{keyA}' / id retrieved = {id}");
 
-			    Assert.IsNotNull(idGet,
-			        $"Should be able to retrieve the id of the associated key / id = {id} / key = '{value}'");
-			    Assert.AreEqual(id, idGet,
-			        $"Should be able to retrieve the correct id of the associated key / id = {id} / key = '{value}' / id retrieved = {idGet}");
+                Assert.That(store.Get(keyB), Is.Null,
+                    $"Should not be able to get id of non-existent / id = {Id} / key = '{keyB}'");
 
-			    idGet = store.Get(anotherValue);
+                store.Remove(Id);
 
-			    Assert.IsNull(idGet, $"Should not be able to get id of non-existent / id = {id} / key = '{anotherValue}'");
+                Assert.That(store.Get(keyA), Is.Null,
+                    $"Should be able to remove association using id (was not removed) / id = {Id} / key = '{keyA}'");
 
-			    store.Remove(id);
+                store.Add(Id, keyA);
+                store.Remove(keyA);
 
-			    idGet = store.Get(value);
+                Assert.That(store.Get(keyA), Is.Null,
+                    $"Should be able to remove association using key (was not removed) / id = {Id} / key = '{keyA}'");
 
-			    Assert.IsNull(idGet,
-			        $"Should be able to remove association using id (was not removed) / id = {id} / key = '{value}'");
+                Assert.That(store.Contains(keyA), Is.False,
+                    $"Should not contain key A / key = '{keyA}'");
+                Assert.That(store.Contains(keyB), Is.False,
+                    $"Should not contain key B / key = '{keyB}'");
 
-			    store.Add(id, value);
-			    store.Remove(value);
+                store.Add(Id, keyB);
 
-			    idGet = store.Get(value);
+                Assert.That(store.Contains(keyA), Is.False,
+                    $"Should not contain key A / key = '{keyA}'");
+                Assert.That(store.Contains(keyB), Is.True,
+                    $"Should contain key B / key = '{keyB}'");
 
-			    Assert.IsNull(idGet,
-			        $"Should be able to remove association using key (was not removed) / id = {id} / key = '{value}'");
-			}
+                store.Rekey(Id, keyA);
+
+                Assert.That(store.Contains(keyA), Is.True,
+                    $"Should contain key A / key = '{keyA}'");
+                Assert.That(store.Contains(keyB), Is.False,
+                    $"Should not contain key B / key = '{keyB}'");
+
+                store.Add(Id, keyB);
+
+                Assert.That(store.Contains(keyA), Is.True,
+                    $"Should contain key A / key = '{keyA}'");
+                Assert.That(store.Contains(keyB), Is.True,
+                    $"Should contain key B / key = '{keyB}'");
+
+                store.Remove(Id);
+
+                Assert.That(store.Contains(keyA), Is.False,
+                    $"Should not contain key A / key = '{keyA}'");
+                Assert.That(store.Contains(keyB), Is.False,
+                    $"Should not contain key B / key = '{keyB}'");
+            }
         }
-	}
+    }
 }

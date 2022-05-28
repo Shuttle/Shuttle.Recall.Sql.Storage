@@ -23,6 +23,11 @@ namespace Shuttle.Recall.Sql.Storage
             return _databaseGateway.GetScalarUsing<int>(_queryFactory.Contains(key)) == 1;
         }
 
+        public bool Contains(Guid id)
+        {
+            return _databaseGateway.GetScalarUsing<int>(_queryFactory.Contains(id)) == 1;
+        }
+
         public Guid? Get(string key)
         {
             return _databaseGateway.GetScalarUsing<Guid?>(_queryFactory.Get(key));
@@ -43,6 +48,23 @@ namespace Shuttle.Recall.Sql.Storage
             try
             {
                 _databaseGateway.ExecuteUsing(_queryFactory.Add(id, key));
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.ToLower().Contains("violation of primary key constraint"))
+                {
+                    throw new DuplicateKeyException(id, key);
+                }
+
+                throw;
+            }
+        }
+
+        public void Rekey(Guid id, string key)
+        {
+            try
+            {
+                _databaseGateway.ExecuteUsing(_queryFactory.Rekey(id, key));
             }
             catch (Exception ex)
             {

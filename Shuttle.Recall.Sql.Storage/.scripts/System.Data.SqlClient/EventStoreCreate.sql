@@ -30,7 +30,7 @@ BEGIN
 		[EventTypeId] [uniqueidentifier] NOT NULL,
 		[IsSnapshot] [bit] NOT NULL,
 		[SequenceNumber] [bigint] IDENTITY(1,1) NOT NULL,
-		[DateRegistered] [datetime] NOT NULL,
+		[DateRegistered] [datetime2] NOT NULL,
 	CONSTRAINT [PK_EventStore] PRIMARY KEY CLUSTERED 
 	(
 		[Id] ASC,

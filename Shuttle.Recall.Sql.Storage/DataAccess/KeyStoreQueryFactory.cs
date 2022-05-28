@@ -43,8 +43,22 @@ namespace Shuttle.Recall.Sql.Storage
 
         public IQuery Contains(string key)
         {
-            return RawQuery.Create(_scriptProvider.Get("KeyStore.Contains"))
+            return RawQuery.Create(_scriptProvider.Get("KeyStore.ContainsKey"))
                     .AddParameterValue(Columns.Key, key);
+        }
+
+        public IQuery Rekey(Guid id, string key)
+        {
+            return
+                RawQuery.Create(_scriptProvider.Get("KeyStore.Rekey"))
+                    .AddParameterValue(Columns.Key, key)
+                    .AddParameterValue(Columns.Id, id);
+        }
+
+        public IQuery Contains(Guid id)
+        {
+            return RawQuery.Create(_scriptProvider.Get("KeyStore.ContainsId"))
+                .AddParameterValue(Columns.Id, id);
         }
     }
 }
