@@ -1,6 +1,6 @@
 ﻿update
 	dbo.KeyStore
 set
-	[Key] = @Key
+	[Key] = @Rekey
 where
-	[Id] = @Id
+	[Key] = @Key

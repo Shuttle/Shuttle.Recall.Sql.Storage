@@ -10,7 +10,7 @@ namespace Shuttle.Recall.Sql.Storage
 		IQuery Remove(string key);
 	    IQuery Remove(Guid id);
 	    IQuery Contains(string key);
-	    IQuery Rekey(Guid id, string key);
+	    IQuery Rekey(string key, string rekey);
 	    IQuery Contains(Guid id);
 	}
 }

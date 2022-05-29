@@ -58,7 +58,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
                 Assert.That(store.Contains(keyB), Is.True,
                     $"Should contain key B / key = '{keyB}'");
 
-                store.Rekey(Id, keyA);
+                store.Rekey(keyB, keyA);
 
                 Assert.That(store.Contains(keyA), Is.True,
                     $"Should contain key A / key = '{keyA}'");
@@ -71,6 +71,8 @@ namespace Shuttle.Recall.Sql.Storage.Tests
                     $"Should contain key A / key = '{keyA}'");
                 Assert.That(store.Contains(keyB), Is.True,
                     $"Should contain key B / key = '{keyB}'");
+
+                Assert.That(() => store.Rekey(keyA, keyB), Throws.TypeOf<DuplicateKeyException>());
 
                 store.Remove(Id);
 

@@ -47,12 +47,12 @@ namespace Shuttle.Recall.Sql.Storage
                     .AddParameterValue(Columns.Key, key);
         }
 
-        public IQuery Rekey(Guid id, string key)
+        public IQuery Rekey(string key, string rekey)
         {
             return
                 RawQuery.Create(_scriptProvider.Get("KeyStore.Rekey"))
                     .AddParameterValue(Columns.Key, key)
-                    .AddParameterValue(Columns.Id, id);
+                    .AddParameterValue(Columns.Rekey, rekey);
         }
 
         public IQuery Contains(Guid id)

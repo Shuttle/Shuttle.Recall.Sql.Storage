@@ -10,6 +10,6 @@ namespace Shuttle.Recall.Sql.Storage
         void Remove(string key);
         void Remove(Guid id);
         void Add(Guid id, string key);
-        void Rekey(Guid id, string key);
+        void Rekey(string key, string rekey);
     }
 }

@@ -60,17 +60,17 @@ namespace Shuttle.Recall.Sql.Storage
             }
         }
 
-        public void Rekey(Guid id, string key)
+        public void Rekey(string key, string rekey)
         {
             try
             {
-                _databaseGateway.ExecuteUsing(_queryFactory.Rekey(id, key));
+                _databaseGateway.ExecuteUsing(_queryFactory.Rekey(key, rekey));
             }
             catch (Exception ex)
             {
                 if (ex.Message.ToLower().Contains("violation of primary key constraint"))
                 {
-                    throw new DuplicateKeyException(id, key);
+                    throw new DuplicateKeyException(Get(key) ?? Guid.Empty, key);
                 }
 
                 throw;
