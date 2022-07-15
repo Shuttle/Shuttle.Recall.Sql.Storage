@@ -17,6 +17,7 @@
     <None Include=".scripts\System.Data.SqlClient\EventStoreCreate.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Fetch.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetEventStream.sql" />
+    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.RemoveEventStream.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Save.sql" />
@@ -30,6 +31,7 @@
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.RemoveId.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.RemoveKey.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\SnapshotStore.Save.sql" />
+    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetEventStream.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Fetch.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveEventStream.sql" />
@@ -47,8 +49,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Shuttle.Core.Data" Version="12.0.2" />
-    <PackageReference Include="Shuttle.Recall" Version="14.0.0" />
+    <PackageReference Include="Shuttle.Core.Data" Version="13.0.0" />
+    <PackageReference Include="Shuttle.Recall" Version="16.0.0" />
   </ItemGroup>
 
 </Project>

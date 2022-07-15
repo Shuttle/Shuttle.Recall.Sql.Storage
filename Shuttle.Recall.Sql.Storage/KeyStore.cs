@@ -20,34 +20,34 @@ namespace Shuttle.Recall.Sql.Storage
 
         public bool Contains(string key)
         {
-            return _databaseGateway.GetScalarUsing<int>(_queryFactory.Contains(key)) == 1;
+            return _databaseGateway.GetScalar<int>(_queryFactory.Contains(key)) == 1;
         }
 
         public bool Contains(Guid id)
         {
-            return _databaseGateway.GetScalarUsing<int>(_queryFactory.Contains(id)) == 1;
+            return _databaseGateway.GetScalar<int>(_queryFactory.Contains(id)) == 1;
         }
 
         public Guid? Get(string key)
         {
-            return _databaseGateway.GetScalarUsing<Guid?>(_queryFactory.Get(key));
+            return _databaseGateway.GetScalar<Guid?>(_queryFactory.Get(key));
         }
 
         public void Remove(string key)
         {
-            _databaseGateway.ExecuteUsing(_queryFactory.Remove(key));
+            _databaseGateway.Execute(_queryFactory.Remove(key));
         }
 
         public void Remove(Guid id)
         {
-            _databaseGateway.ExecuteUsing(_queryFactory.Remove(id));
+            _databaseGateway.Execute(_queryFactory.Remove(id));
         }
 
         public void Add(Guid id, string key)
         {
             try
             {
-                _databaseGateway.ExecuteUsing(_queryFactory.Add(id, key));
+                _databaseGateway.Execute(_queryFactory.Add(id, key));
             }
             catch (Exception ex)
             {
@@ -64,7 +64,7 @@ namespace Shuttle.Recall.Sql.Storage
         {
             try
             {
-                _databaseGateway.ExecuteUsing(_queryFactory.Rekey(key, rekey));
+                _databaseGateway.Execute(_queryFactory.Rekey(key, rekey));
             }
             catch (Exception ex)
             {

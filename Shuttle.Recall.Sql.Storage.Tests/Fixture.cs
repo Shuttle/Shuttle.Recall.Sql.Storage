@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Data;
@@ -14,25 +15,34 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 		{
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
-            var connectionConfigurationProvider = new Mock<IConnectionConfigurationProvider>();
+            var connectionStringOptions = new Mock<IOptionsMonitor<ConnectionStringOptions>>();
 
-            connectionConfigurationProvider.Setup(m => m.Get(It.IsAny<string>())).Returns(
-                new ConnectionConfiguration(
-                    "Shuttle",
-                    "System.Data.SqlClient",
-                    "server=.;database=Shuttle;user id=sa;password=Pass!000"));
+            connectionStringOptions.Setup(m => m.Get(It.IsAny<string>())).Returns(new ConnectionStringOptions
+            {
+	            Name = "shuttle",
+	            ProviderName = "System.Data.SqlClient",
+	            ConnectionString = "server=.;database=Shuttle;user id=sa;password=Pass!000"
+			});
+
+            ConnectionStringOptions = connectionStringOptions.Object;
 
             DatabaseContextFactory = new DatabaseContextFactory(
-                connectionConfigurationProvider.Object,
-                new DbConnectionFactory(),
-                new DbCommandFactory(),
-                new ThreadStaticDatabaseContextCache());
+	            ConnectionStringOptions,
+	            new DbConnectionFactory(),
+	            new DbCommandFactory(Options.Create(new CommandOptions())),
+	            new ThreadStaticDatabaseContextCache());
 
-			ClearDataStore();
+            DatabaseContextCache = new ThreadStaticDatabaseContextCache();
+
+            DatabaseGateway = new DatabaseGateway(DatabaseContextCache);
+
+            ClearDataStore();
 		}
 
-		public DatabaseGateway DatabaseGateway { get; } = new DatabaseGateway();
+		public DatabaseGateway DatabaseGateway { get; private set; }
+		public IDatabaseContextCache DatabaseContextCache { get; private set; }
 		public IDatabaseContextFactory DatabaseContextFactory { get; private set; }
+		public IOptionsMonitor<ConnectionStringOptions> ConnectionStringOptions { get; private set; }
 
 		public string EventStoreConnectionStringName = "EventStore";
 
@@ -41,12 +51,12 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 		{
 			using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
 			{
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
-			    DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
-				DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
-                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
-                DatabaseGateway.ExecuteUsing(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
+				DatabaseGateway.Execute(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+				DatabaseGateway.Execute(RawQuery.Create("delete from EventStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
+			    DatabaseGateway.Execute(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+				DatabaseGateway.Execute(RawQuery.Create("delete from KeyStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
+                DatabaseGateway.Execute(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderId));
+                DatabaseGateway.Execute(RawQuery.Create("delete from SnapshotStore where Id = @Id").AddParameterValue(Columns.Id, RecallFixture.OrderProcessId));
             }
         }
 	}

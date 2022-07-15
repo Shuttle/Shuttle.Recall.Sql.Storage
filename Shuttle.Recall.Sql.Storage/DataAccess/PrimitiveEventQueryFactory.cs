@@ -68,5 +68,10 @@ namespace Shuttle.Recall.Sql.Storage
                 .AddParameterValue(Columns.Id, primitiveEvent.Id)
                 .AddParameterValue(Columns.Version, primitiveEvent.Version);
         }
+
+        public IQuery GetSequenceNumber(Guid id)
+        {
+            return new RawQuery(_scriptProvider.Get("EventStore.GetSequenceNumber")).AddParameterValue(Columns.Id, id);
+        }
     }
 }

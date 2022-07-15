@@ -12,5 +12,6 @@ namespace Shuttle.Recall.Sql.Storage
         IQuery Fetch(long fromSequenceNumber, int fetchCount, IEnumerable<Type> eventTypes);
         IQuery SaveEvent(PrimitiveEvent primitiveEvent);
         IQuery SaveSnapshot(PrimitiveEvent primitiveEvent);
+        IQuery GetSequenceNumber(Guid id);
     }
 }

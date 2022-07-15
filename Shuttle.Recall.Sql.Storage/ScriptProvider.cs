@@ -1,4 +1,6 @@
-﻿using Shuttle.Core.Contract;
+﻿using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Data;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -6,19 +8,21 @@ namespace Shuttle.Recall.Sql.Storage
 	{
 		private readonly Core.Data.IScriptProvider _scriptProvider;
 
-		public ScriptProvider(IScriptProviderConfiguration configuration)
+		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextCache databaseContextCache)
 		{
-			Guard.AgainstNull(configuration, nameof(configuration));
+			Guard.AgainstNull(options, nameof(options));
+			Guard.AgainstNull(options.Value, nameof(options.Value));
+			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-			_scriptProvider = new Core.Data.ScriptProvider(new ScriptProviderConfiguration
+			_scriptProvider = new Core.Data.ScriptProvider(Options.Create(new ScriptProviderOptions
 			{
-				ResourceNameFormat = string.IsNullOrEmpty(configuration.ResourceNameFormat)
+				ResourceNameFormat = string.IsNullOrEmpty(options.Value.ResourceNameFormat)
 					? "Shuttle.Recall.Sql.Storage..scripts.{ProviderName}.{ScriptName}.sql"
-					: configuration.ResourceNameFormat,
-				ResourceAssembly = configuration.ResourceAssembly ?? typeof(PrimitiveEventRepository).Assembly,
-				FileNameFormat = configuration.FileNameFormat,
-				ScriptFolder = configuration.ScriptFolder
-			});
+					: options.Value.ResourceNameFormat,
+				ResourceAssembly = options.Value.ResourceAssembly ?? typeof(PrimitiveEventRepository).Assembly,
+				FileNameFormat = options.Value.FileNameFormat,
+				ScriptFolder = options.Value.ScriptFolder
+			}), databaseContextCache);
 		}
 
 		public string Get(string scriptName)
