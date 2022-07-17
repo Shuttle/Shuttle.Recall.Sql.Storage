@@ -26,16 +26,16 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
             ConnectionStringOptions = connectionStringOptions.Object;
 
+            DatabaseContextCache = new ThreadStaticDatabaseContextCache();
+
+            DatabaseGateway = new DatabaseGateway(DatabaseContextCache);
+            
             DatabaseContextFactory = new DatabaseContextFactory(
 	            ConnectionStringOptions,
 	            new DbConnectionFactory(),
 	            new DbCommandFactory(Options.Create(new CommandOptions())),
-	            new ThreadStaticDatabaseContextCache());
-
-            DatabaseContextCache = new ThreadStaticDatabaseContextCache();
-
-            DatabaseGateway = new DatabaseGateway(DatabaseContextCache);
-
+	            DatabaseContextCache);
+			
             ClearDataStore();
 		}
 

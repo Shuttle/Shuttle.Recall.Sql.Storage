@@ -16,7 +16,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
             services.AddEventStore(builder =>
             {
-                builder.UseSqlStorage();
+                builder.UseSqlEventStorage();
             });
 
             using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
