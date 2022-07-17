@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
+using Shuttle.Core.Data;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -14,10 +15,9 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
             services.AddSingleton(new Mock<IProjectionRepository>().Object);
 
-            services.AddEventStore(builder =>
-            {
-                builder.UseSqlEventStorage();
-            });
+            services.AddDataAccess();
+            services.AddEventStore();
+            services.AddSqlEventStorage();
 
             using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
             {
