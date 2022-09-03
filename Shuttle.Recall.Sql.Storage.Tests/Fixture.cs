@@ -19,7 +19,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
 
             connectionStringOptions.Setup(m => m.Get(It.IsAny<string>())).Returns(new ConnectionStringOptions
             {
-	            Name = "shuttle",
+	            Name = "Shuttle",
 	            ProviderName = "System.Data.SqlClient",
 	            ConnectionString = "server=.;database=Shuttle;user id=sa;password=Pass!000"
 			});
@@ -29,13 +29,20 @@ namespace Shuttle.Recall.Sql.Storage.Tests
             DatabaseContextCache = new ThreadStaticDatabaseContextCache();
 
             DatabaseGateway = new DatabaseGateway(DatabaseContextCache);
-            
+
             DatabaseContextFactory = new DatabaseContextFactory(
 	            ConnectionStringOptions,
+	            Options.Create(new DataAccessOptions
+	            {
+		            DatabaseContextFactory = new DatabaseContextFactoryOptions
+		            {
+			            DefaultConnectionStringName = "Shuttle"
+		            }
+	            }),
 	            new DbConnectionFactory(),
-	            new DbCommandFactory(Options.Create(new CommandOptions())),
-	            DatabaseContextCache);
-			
+	            new DbCommandFactory(Options.Create(new DataAccessOptions())),
+	            new ThreadStaticDatabaseContextCache());
+
             ClearDataStore();
 		}
 

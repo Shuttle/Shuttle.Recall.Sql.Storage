@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Data;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -16,6 +15,7 @@ namespace Shuttle.Recall.Sql.Storage
             services.TryAddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
 
             services.TryAddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
+            services.TryAddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
             services.TryAddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
             services.TryAddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
             services.TryAddSingleton<IKeyStore, KeyStore>();

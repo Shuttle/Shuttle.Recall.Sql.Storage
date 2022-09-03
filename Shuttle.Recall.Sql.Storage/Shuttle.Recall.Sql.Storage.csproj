@@ -15,7 +15,7 @@
     <None Include=".scripts\Microsoft.Data.SqlClient\EventStoreCreate.sql" />
     <None Include=".scripts\.sqlserver\upgrade-11.0.0.sql" />
     <None Include=".scripts\System.Data.SqlClient\EventStoreCreate.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Fetch.sql" />
+    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Search.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetEventStream.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.RemoveEventStream.sql" />
@@ -33,7 +33,7 @@
     <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\SnapshotStore.Save.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetEventStream.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Fetch.sql" />
+    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Search.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveEventStream.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
     <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Save.sql" />
