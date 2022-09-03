@@ -1,9 +1,7 @@
-﻿using Moq;
-using Ninject;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Container;
 using Shuttle.Core.Data;
-using Shuttle.Core.Ninject;
 using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -13,17 +11,17 @@ namespace Shuttle.Recall.Sql.Storage.Tests
         [Test]
         public void ExerciseStorage()
         {
-            var container = new NinjectComponentContainer(new StandardKernel());
+            var services = new ServiceCollection();
 
-            container.RegisterInstance(new Mock<IProjectionRepository>().Object);
+            services.AddSingleton(new Mock<IProjectionRepository>().Object);
 
-            container.RegisterEventStore();
-            container.RegisterDataAccess();
-            container.RegisterEventStoreStorage();
+            services.AddDataAccess();
+            services.AddEventStore();
+            services.AddSqlEventStorage();
 
             using (DatabaseContextFactory.Create(EventStoreConnectionStringName))
             {
-                RecallFixture.ExerciseStorage(container.Resolve<IEventStore>());
+                RecallFixture.ExerciseStorage(services.BuildServiceProvider().GetRequiredService<IEventStore>());
             }
         }
     }

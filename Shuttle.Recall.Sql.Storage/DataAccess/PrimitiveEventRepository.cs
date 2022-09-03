@@ -25,8 +25,8 @@ namespace Shuttle.Recall.Sql.Storage
 
         public void Remove(Guid id)
         {
-            _databaseGateway.ExecuteUsing(_queryFactory.RemoveSnapshot(id));
-            _databaseGateway.ExecuteUsing(_queryFactory.RemoveEventStream(id));
+            _databaseGateway.Execute(_queryFactory.RemoveSnapshot(id));
+            _databaseGateway.Execute(_queryFactory.RemoveEventStream(id));
         }
 
         public IEnumerable<PrimitiveEvent> Get(Guid id)
@@ -34,19 +34,21 @@ namespace Shuttle.Recall.Sql.Storage
             return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.GetEventStream(id));
         }
 
-        public IEnumerable<PrimitiveEvent> Fetch(long fromSequenceNumber, int fetchCount, IEnumerable<Type> eventTypes)
+        public long Save(PrimitiveEvent primitiveEvent)
         {
-            return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.Fetch(fromSequenceNumber, fetchCount, eventTypes));
-        }
-
-        public void Save(PrimitiveEvent primitiveEvent)
-        {
-            _databaseGateway.ExecuteUsing(_queryFactory.SaveEvent(primitiveEvent));
+            var result = _databaseGateway.GetScalar<long>(_queryFactory.SaveEvent(primitiveEvent));
 
             if (primitiveEvent.IsSnapshot)
             {
-                _databaseGateway.ExecuteUsing(_queryFactory.SaveSnapshot(primitiveEvent));
+                _databaseGateway.Execute(_queryFactory.SaveSnapshot(primitiveEvent));
             }
+
+            return result;
+        }
+
+        public long GetSequenceNumber(Guid id)
+        {
+            return _databaseGateway.GetScalar<long>(_queryFactory.GetSequenceNumber(id));
         }
     }
 }

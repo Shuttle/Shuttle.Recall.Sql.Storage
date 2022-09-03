@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Transactions;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace Shuttle.Recall.Sql.Storage.Tests
@@ -12,7 +13,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests
         public void Should_be_able_to_use_key_store()
         {
             var store = new KeyStore(DatabaseGateway,
-                new KeyStoreQueryFactory(new ScriptProvider(new ScriptProviderConfiguration())));
+                new KeyStoreQueryFactory(new ScriptProvider(Options.Create(new ScriptProviderOptions()), DatabaseContextCache)));
 
             using (new TransactionScope())
             using (DatabaseContextFactory.Create(EventStoreConnectionStringName))

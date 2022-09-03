@@ -35,19 +35,28 @@ namespace Shuttle.Recall.Sql.Storage
             return new RawQuery(_scriptProvider.Get("EventStore.GetEventStream")).AddParameterValue(Columns.Id, id);
         }
 
-        public IQuery Fetch(long fromSequenceNumber, int fetchCount, IEnumerable<Type> eventTypes)
+        public IQuery Search(PrimitiveEvent.Specification specification)
         {
-            var eventTypeIds = eventTypes.Select(eventType => _eventTypeStore.GetId(eventType.FullName)).ToList();
+            Guard.AgainstNull(specification, nameof(specification));
+
+            var eventTypeIds = specification.EventTypes.Select(eventType => _eventTypeStore.GetId(eventType.FullName)).ToList();
+
+            var whereEventTypeIds = !eventTypeIds.Any()
+                ? string.Empty
+                : $" and EventTypeId in ({string.Join(",", eventTypeIds.Select(id => string.Concat("'", id, "'")).ToArray())})";
+
+            var whereIds = !specification.Ids.Any()
+                ? string.Empty
+                : $" and Id in ({string.Join(",", specification.Ids.Select(id => string.Concat("'", id, "'")).ToArray())})";
 
             return
-                new RawQuery(string.Format(_scriptProvider.Get("EventStore.Fetch"),
-                        fetchCount>0
-                            ? fetchCount
-                                : 1,
-                        !eventTypeIds.Any()
-                            ? string.Empty
-                            : $"and EventTypeId in ({string.Join(",", eventTypeIds.Select(id => string.Concat("'", id, "'")).ToArray())})"))
-                    .AddParameterValue(Columns.FromSequenceNumber, fromSequenceNumber);
+                new RawQuery(string.Format(_scriptProvider.Get("EventStore.Search"),
+                        specification.Count > 0
+                            ? specification.Count
+                            : 1,
+                        $"{whereEventTypeIds}{whereIds}"))
+                    .AddParameterValue(Columns.FromSequenceNumber, specification.SequenceNumberStart);
+
         }
 
         public IQuery SaveEvent(PrimitiveEvent primitiveEvent)
@@ -67,6 +76,11 @@ namespace Shuttle.Recall.Sql.Storage
             return new RawQuery(_scriptProvider.Get("SnapshotStore.Save"))
                 .AddParameterValue(Columns.Id, primitiveEvent.Id)
                 .AddParameterValue(Columns.Version, primitiveEvent.Version);
+        }
+
+        public IQuery GetSequenceNumber(Guid id)
+        {
+            return new RawQuery(_scriptProvider.Get("EventStore.GetSequenceNumber")).AddParameterValue(Columns.Id, id);
         }
     }
 }

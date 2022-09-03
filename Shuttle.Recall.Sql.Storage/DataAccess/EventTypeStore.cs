@@ -29,7 +29,7 @@ namespace Shuttle.Recall.Sql.Storage
 
                 if (!_cache.ContainsKey(key))
                 {
-                    _cache.Add(key, _databaseGateway.GetScalarUsing<Guid>(_queryFactory.GetId(typeName)));
+                    _cache.Add(key, _databaseGateway.GetScalar<Guid>(_queryFactory.GetId(typeName)));
                 }
 
                 return _cache[key];

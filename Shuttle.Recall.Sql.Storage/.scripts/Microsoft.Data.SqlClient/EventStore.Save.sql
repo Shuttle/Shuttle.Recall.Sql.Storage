@@ -17,4 +17,6 @@ values
 	@EventId,
 	@IsSnapshot,
 	@DateRegistered
-)
+);
+
+select cast(scope_identity() as bigint);
