@@ -14,13 +14,13 @@ namespace Shuttle.Recall.Sql.Storage
 
             services.TryAddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
 
-            services.TryAddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
-            services.TryAddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
-            services.TryAddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
-            services.TryAddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
-            services.TryAddSingleton<IKeyStore, KeyStore>();
-            services.TryAddSingleton<IEventTypeStore, EventTypeStore>();
-            services.TryAddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+            services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
+            services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
+            services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
+            services.AddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
+            services.AddSingleton<IKeyStore, KeyStore>();
+            services.AddSingleton<IEventTypeStore, EventTypeStore>();
+            services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
 
             return services;
         }

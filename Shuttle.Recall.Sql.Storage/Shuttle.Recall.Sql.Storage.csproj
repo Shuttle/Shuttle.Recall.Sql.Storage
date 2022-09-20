@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Shuttle.Core.Data" Version="13.0.0" />
-    <PackageReference Include="Shuttle.Recall" Version="16.0.0" />
+    <PackageReference Include="Shuttle.Recall" Version="16.0.1" />
   </ItemGroup>
 
 </Project>
