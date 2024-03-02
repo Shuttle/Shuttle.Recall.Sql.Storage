@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
@@ -11,16 +12,11 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IQueryMapper _queryMapper;
         private readonly IPrimitiveEventQueryFactory _queryFactory;
 
-        public PrimitiveEventRepository(IDatabaseGateway databaseGateway, IQueryMapper queryMapper,
-            IPrimitiveEventQueryFactory queryFactory)
+        public PrimitiveEventRepository(IDatabaseGateway databaseGateway, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory)
         {
-            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
-            Guard.AgainstNull(queryMapper, nameof(queryMapper));
-            Guard.AgainstNull(queryFactory, nameof(queryFactory));
-
-            _databaseGateway = databaseGateway;
-            _queryMapper = queryMapper;
-            _queryFactory = queryFactory;
+            _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
+            _queryMapper = Guard.AgainstNull(queryMapper, nameof(queryMapper));
+            _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
         }
 
         public void Remove(Guid id)
@@ -49,6 +45,34 @@ namespace Shuttle.Recall.Sql.Storage
         public long GetSequenceNumber(Guid id)
         {
             return _databaseGateway.GetScalar<long>(_queryFactory.GetSequenceNumber(id));
+        }
+
+        public async Task RemoveAsync(Guid id)
+        {
+            await _databaseGateway.ExecuteAsync(_queryFactory.RemoveSnapshot(id)).ConfigureAwait(false);
+            await _databaseGateway.ExecuteAsync(_queryFactory.RemoveEventStream(id)).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<PrimitiveEvent>> GetAsync(Guid id)
+        {
+            return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(_queryFactory.GetEventStream(id)).ConfigureAwait(false);
+        }
+
+        public async ValueTask<long> SaveAsync(PrimitiveEvent primitiveEvent)
+        {
+            var result = await _databaseGateway.GetScalarAsync<long>(_queryFactory.SaveEvent(primitiveEvent)).ConfigureAwait(false);
+
+            if (primitiveEvent.IsSnapshot)
+            {
+                await _databaseGateway.ExecuteAsync(_queryFactory.SaveSnapshot(primitiveEvent)).ConfigureAwait(false);
+            }
+
+            return result;
+        }
+
+        public async ValueTask<long> GetSequenceNumberAsync(Guid id)
+        {
+            return await _databaseGateway.GetScalarAsync<long>(_queryFactory.GetSequenceNumber(id));
         }
     }
 }

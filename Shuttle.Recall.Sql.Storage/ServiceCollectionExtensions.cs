@@ -1,26 +1,37 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using System;
 
 namespace Shuttle.Recall.Sql.Storage
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddSqlEventStorage(this IServiceCollection services)
+        public static IServiceCollection AddSqlEventStorage(this IServiceCollection services, Action<SqlStorageBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
 
+            var dataAccessBuilder = new SqlStorageBuilder(services);
+
+            builder?.Invoke(dataAccessBuilder);
+
+            services.TryAddSingleton<IValidateOptions<SqlStorageOptions>, SqlStorageOptionsValidator>();
+
+            services.AddOptions<SqlStorageOptions>().Configure(options =>
+            {
+                options.ConnectionStringName= dataAccessBuilder.Options.ConnectionStringName;
+            });
+
             services.TryAddSingleton<IScriptProvider, ScriptProvider>();
-
             services.TryAddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
-
-            services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
-            services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
-            services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
-            services.AddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
-            services.AddSingleton<IKeyStore, KeyStore>();
-            services.AddSingleton<IEventTypeStore, EventTypeStore>();
-            services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+            services.TryAddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
+            services.TryAddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
+            services.TryAddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
+            services.TryAddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
+            services.TryAddSingleton<IKeyStore, KeyStore>();
+            services.TryAddSingleton<IEventTypeStore, EventTypeStore>();
+            services.TryAddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
 
             return services;
         }
