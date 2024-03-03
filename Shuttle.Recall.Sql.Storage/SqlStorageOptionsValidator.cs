@@ -11,7 +11,7 @@ namespace Shuttle.Recall.Sql.Storage
 
             if (string.IsNullOrWhiteSpace(options.ConnectionStringName))
             {
-                return ValidateOptionsResult.Fail(string.Format(Core.Data.Resources.ConnectionStringMissingException, name));
+                return ValidateOptionsResult.Fail(Resources.ConnectionStringException);
             }
 
             return ValidateOptionsResult.Success;

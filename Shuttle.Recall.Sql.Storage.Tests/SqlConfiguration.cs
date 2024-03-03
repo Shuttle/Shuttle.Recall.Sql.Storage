@@ -20,8 +20,8 @@ public class SqlConfiguration
             .AddSingleton<IConfiguration>(new ConfigurationBuilder().Build())
             .AddDataAccess(builder =>
             {
-                builder.AddConnectionString("shuttle", "Microsoft.Data.SqlClient", "server=.;database=shuttle;user id=sa;password=Pass!000;TrustServerCertificate=true");
-                builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "shuttle";
+                builder.AddConnectionString("Shuttle", "Microsoft.Data.SqlClient", "server=.;database=Shuttle;user id=sa;password=Pass!000;TrustServerCertificate=true");
+                builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "Shuttle";
             })
             .AddDataAccessLogging(builder =>
             {
@@ -30,7 +30,7 @@ public class SqlConfiguration
             })
             .AddSqlEventStorage(builder =>
             {
-                builder.Options.ConnectionStringName = "shuttle";
+                builder.Options.ConnectionStringName = "Shuttle";
             })
             .AddEventStore()
 ;
