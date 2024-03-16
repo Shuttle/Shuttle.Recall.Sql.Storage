@@ -25,11 +25,13 @@ public class KeyStoreFixture
 
     private async Task Should_be_able_to_use_key_store_async(bool sync)
     {
-        var provider = SqlConfiguration.BuildServiceProvider();
+        var services = SqlConfiguration.GetServiceCollection();
 
-        var databaseContextFactory = provider.GetRequiredService<IDatabaseContextFactory>();
-        var databaseGateway = provider.GetRequiredService<IDatabaseGateway>();
-        var keyStore = provider.GetRequiredService<IKeyStore>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
+        var databaseGateway = serviceProvider.GetRequiredService<IDatabaseGateway>();
+        var keyStore = serviceProvider.GetRequiredService<IKeyStore>();
 
         await using (databaseContextFactory.Create())
         {

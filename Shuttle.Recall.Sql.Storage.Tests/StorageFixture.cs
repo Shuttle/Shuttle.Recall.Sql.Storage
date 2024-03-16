@@ -23,8 +23,9 @@ public class StorageFixture : RecallFixture
 
     private async Task Should_be_able_to_exercise_event_store_async(bool sync)
     {
-        var serviceProvider = SqlConfiguration.BuildServiceProvider(new ServiceCollection().AddSingleton(new Mock<IProjectionRepository>().Object));
+        var services = SqlConfiguration.GetServiceCollection(new ServiceCollection().AddSingleton(new Mock<IProjectionRepository>().Object));
 
+        var serviceProvider = services.BuildServiceProvider();
         var databaseGateway = serviceProvider.GetRequiredService<IDatabaseGateway>();
 
         using (serviceProvider.GetRequiredService<IDatabaseContextFactory>().Create())
@@ -46,13 +47,13 @@ public class StorageFixture : RecallFixture
 
             if (sync)
             {
-                ExerciseStorage(serviceProvider.GetRequiredService<IEventStore>());
-                ExerciseStorageRemoval(serviceProvider.GetRequiredService<IEventStore>());
+                ExerciseStorage(services);
+                ExerciseStorageRemoval(services);
             }
             else
             {
-                await ExerciseStorageAsync(serviceProvider.GetRequiredService<IEventStore>());
-                await ExerciseStorageRemovalAsync(serviceProvider.GetRequiredService<IEventStore>());
+                await ExerciseStorageAsync(services);
+                await ExerciseStorageRemovalAsync(services);
             }
         }
     }

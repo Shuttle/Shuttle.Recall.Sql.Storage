@@ -12,7 +12,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests;
 [SetUpFixture]
 public class SqlConfiguration
 {
-    public static IServiceProvider BuildServiceProvider(IServiceCollection serviceCollection = null)
+    public static IServiceCollection GetServiceCollection(IServiceCollection serviceCollection = null)
     {
         var services = serviceCollection ?? new ServiceCollection();
 
@@ -35,7 +35,7 @@ public class SqlConfiguration
             .AddEventStore()
 ;
 
-        return services.BuildServiceProvider();
+        return services;
     }
 
     [OneTimeSetUp]
