@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
@@ -8,87 +9,132 @@ namespace Shuttle.Recall.Sql.Storage
 {
     public class KeyStore : IKeyStore
     {
-        private readonly IDatabaseGateway _databaseGateway;
-        private readonly IKeyStoreQueryFactory _queryFactory;
-
-        public KeyStore(IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
+        private class ConnectionFactory
         {
-            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
-            Guard.AgainstNull(queryFactory, nameof(queryFactory));
+            private class NullDisposable : IDisposable
+            {
+                public void Dispose()
+                {
+                }
+            }
 
-            _databaseGateway = databaseGateway;
-            _queryFactory = queryFactory;
+            private readonly IDisposable _nullDisposable = new NullDisposable();
+            private readonly EventStoreOptions _eventStoreOptions;
+            private readonly IDatabaseContextFactory _databaseContextFactory;
+            private readonly SqlStorageOptions _sqlStorageOptions;
+
+            public ConnectionFactory(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
+            {
+                _eventStoreOptions = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value;
+                _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
+                _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
+            }
+
+            public IDisposable GetConnection(Action<EventStreamBuilder> builder = null)
+            {
+                var eventStreamBuilder = new EventStreamBuilder();
+
+                builder?.Invoke(eventStreamBuilder);
+
+                return !eventStreamBuilder.ShouldIgnoreConnectionRequest && _eventStoreOptions.ManageEventStoreConnections
+                 ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName)
+                 : _nullDisposable;
+            }
         }
 
-        public bool Contains(string key)
+        private readonly IDatabaseGateway _databaseGateway;
+        private readonly IKeyStoreQueryFactory _queryFactory;
+        private readonly ConnectionFactory _connectionFactory;
+
+        public KeyStore(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
         {
+            _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
+            _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
+
+            _connectionFactory = new ConnectionFactory(eventStoreOptions, sqlStorageOptions, databaseContextFactory);
+        }
+
+        public bool Contains(string key, Action<EventStreamBuilder> builder = null)
+        {
+            using var connection = _connectionFactory.GetConnection(builder);
             return _databaseGateway.GetScalar<int>(_queryFactory.Contains(key)) == 1;
         }
 
-        public bool Contains(Guid id)
+        public bool Contains(Guid id, Action<EventStreamBuilder> builder = null)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             return _databaseGateway.GetScalar<int>(_queryFactory.Contains(id)) == 1;
         }
 
-        public Guid? Find(string key)
+        public Guid? Find(string key, Action<EventStreamBuilder> builder = null)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             return _databaseGateway.GetScalar<Guid?>(_queryFactory.Get(key));
         }
 
-        public void Remove(string key)
+        public void Remove(string key, Action<EventStreamBuilder> builder = null)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             _databaseGateway.Execute(_queryFactory.Remove(key));
         }
 
-        public void Remove(Guid id)
+        public void Remove(Guid id, Action<EventStreamBuilder> builder = null)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             _databaseGateway.Execute(_queryFactory.Remove(id));
         }
 
-        public void Add(Guid id, string key)
+        public void Add(Guid id, string key, Action<EventStreamBuilder> builder = null)
         {
-            AddAsync(id, key, CancellationToken.None, true).GetAwaiter().GetResult();
+            AddAsync(id, key, builder, CancellationToken.None, true).GetAwaiter().GetResult();
         }
 
-        public void Rekey(string key, string rekey)
+        public void Rekey(string key, string rekey, Action<EventStreamBuilder> builder = null)
         {
-            RekeyAsync(key, rekey, CancellationToken.None, true).GetAwaiter().GetResult();
+            RekeyAsync(key, rekey, builder, CancellationToken.None, true).GetAwaiter().GetResult();
         }
 
-        public async ValueTask<bool> ContainsAsync(string key, CancellationToken cancellationToken = default)
+        public async ValueTask<bool> ContainsAsync(string key, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             return await _databaseGateway.GetScalarAsync<int>(_queryFactory.Contains(key), cancellationToken).ConfigureAwait(false) == 1;
         }
 
-        public async ValueTask<bool> ContainsAsync(Guid id, CancellationToken cancellationToken = default)
+        public async ValueTask<bool> ContainsAsync(Guid id, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             return await _databaseGateway.GetScalarAsync<int>(_queryFactory.Contains(id), cancellationToken).ConfigureAwait(false) == 1;
         }
 
-        public async ValueTask<Guid?> FindAsync(string key, CancellationToken cancellationToken = default)
+        public async ValueTask<Guid?> FindAsync(string key, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             return await _databaseGateway.GetScalarAsync<Guid?>(_queryFactory.Get(key), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+        public async Task RemoveAsync(string key, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             await _databaseGateway.ExecuteAsync(_queryFactory.Remove(key), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task RemoveAsync(Guid id, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
+            using var connection = _connectionFactory.GetConnection(builder);
             await _databaseGateway.ExecuteAsync(_queryFactory.Remove(id), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task AddAsync(Guid id, string key, CancellationToken cancellationToken = default)
+        public async Task AddAsync(Guid id, string key, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
-            await AddAsync(id, key, cancellationToken, false).ConfigureAwait(false);
+            await AddAsync(id, key, builder, cancellationToken, false).ConfigureAwait(false);
         }
 
-        private async Task AddAsync(Guid id, string key, CancellationToken cancellationToken, bool sync)
+        private async Task AddAsync(Guid id, string key, Action<EventStreamBuilder> builder, CancellationToken cancellationToken, bool sync)
         {
             try
             {
+                using var connection = _connectionFactory.GetConnection(builder);
+
                 if (sync)
                 {
                     _databaseGateway.Execute(_queryFactory.Add(id, key));
@@ -109,15 +155,17 @@ namespace Shuttle.Recall.Sql.Storage
             }
         }
 
-        public async Task RekeyAsync(string key, string rekey, CancellationToken cancellationToken = default)
+        public async Task RekeyAsync(string key, string rekey, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
         {
-            await RekeyAsync(key, rekey, cancellationToken, false).ConfigureAwait(false);
+            await RekeyAsync(key, rekey, builder, cancellationToken, false).ConfigureAwait(false);
         }
 
-        private async Task RekeyAsync(string key, string rekey, CancellationToken cancellationToken, bool sync)
+        private async Task RekeyAsync(string key, string rekey, Action<EventStreamBuilder> builder, CancellationToken cancellationToken, bool sync)
         {
             try
             {
+                using var connection = _connectionFactory.GetConnection(builder);
+
                 if (sync)
                 {
                     _databaseGateway.Execute(_queryFactory.Rekey(key, rekey));
@@ -131,7 +179,7 @@ namespace Shuttle.Recall.Sql.Storage
             {
                 if (ex.Message.ToLower().Contains("violation of primary key constraint"))
                 {
-                    throw new DuplicateKeyException(Find(key) ?? Guid.Empty, key);
+                    throw new DuplicateKeyException(await FindAsync(key, builder, cancellationToken) ?? Guid.Empty, key);
                 }
 
                 throw;

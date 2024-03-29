@@ -25,7 +25,7 @@ public class KeyStoreFixture
 
     private async Task Should_be_able_to_use_key_store_async(bool sync)
     {
-        var services = SqlConfiguration.GetServiceCollection();
+        var services = SqlConfiguration.GetServiceCollection(false);
 
         var serviceProvider = services.BuildServiceProvider();
 

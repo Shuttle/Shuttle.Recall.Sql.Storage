@@ -12,11 +12,9 @@ namespace Shuttle.Recall.Sql.Storage.Tests;
 [SetUpFixture]
 public class SqlConfiguration
 {
-    public static IServiceCollection GetServiceCollection(IServiceCollection serviceCollection = null)
+    public static IServiceCollection GetServiceCollection(bool manageEventStoreConnections, IServiceCollection serviceCollection = null)
     {
-        var services = serviceCollection ?? new ServiceCollection();
-
-        services
+        return (serviceCollection ?? new ServiceCollection())
             .AddSingleton<IConfiguration>(new ConfigurationBuilder().Build())
             .AddDataAccess(builder =>
             {
@@ -32,10 +30,10 @@ public class SqlConfiguration
             {
                 builder.Options.ConnectionStringName = "Shuttle";
             })
-            .AddEventStore()
-;
-
-        return services;
+            .AddEventStore(builder =>
+            {
+                builder.Options.ManageEventStoreConnections = manageEventStoreConnections;
+            });
     }
 
     [OneTimeSetUp]

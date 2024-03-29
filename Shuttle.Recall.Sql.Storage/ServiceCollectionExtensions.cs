@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using System;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -20,7 +20,7 @@ namespace Shuttle.Recall.Sql.Storage
 
             services.AddOptions<SqlStorageOptions>().Configure(options =>
             {
-                options.ConnectionStringName= dataAccessBuilder.Options.ConnectionStringName;
+                options.ConnectionStringName = dataAccessBuilder.Options.ConnectionStringName;
             });
 
             services.TryAddSingleton<IScriptProvider, ScriptProvider>();
@@ -32,6 +32,8 @@ namespace Shuttle.Recall.Sql.Storage
             services.TryAddSingleton<IKeyStore, KeyStore>();
             services.TryAddSingleton<IEventTypeStore, EventTypeStore>();
             services.TryAddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+
+            services.AddHostedService<EventStoreHostedService>();
 
             return services;
         }
