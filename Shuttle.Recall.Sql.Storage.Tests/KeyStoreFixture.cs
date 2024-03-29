@@ -4,6 +4,7 @@ using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Data;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Recall.Sql.Storage.Tests;
 
@@ -14,18 +15,30 @@ public class KeyStoreFixture
     [Test]
     public void Should_be_able_to_use_key_store()
     {
-        Should_be_able_to_use_key_store_async(true).GetAwaiter().GetResult();
+        Should_be_able_to_use_key_store_async(false, true).GetAwaiter().GetResult();
     }
 
     [Test]
     public async Task Should_be_able_to_use_key_store_async()
     {
-        await Should_be_able_to_use_key_store_async(false);
+        await Should_be_able_to_use_key_store_async(false, false);
     }
 
-    private async Task Should_be_able_to_use_key_store_async(bool sync)
+    [Test]
+    public void Should_be_able_to_use_key_store_with_managed_connections()
     {
-        var services = SqlConfiguration.GetServiceCollection(false);
+        Should_be_able_to_use_key_store_async(true, true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_use_key_store_with_managed_connections_async()
+    {
+        await Should_be_able_to_use_key_store_async(true, false);
+    }
+
+    private async Task Should_be_able_to_use_key_store_async(bool manageEventStoreConnections, bool sync)
+    {
+        var services = SqlConfiguration.GetServiceCollection(manageEventStoreConnections);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -48,8 +61,14 @@ public class KeyStoreFixture
         }
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-        await using (databaseContextFactory.Create())
         {
+            IDatabaseContext databaseContext = null;
+
+            if (!manageEventStoreConnections)
+            {
+                databaseContext = databaseContextFactory.Create();
+            }
+
             var keyA = string.Concat("a=", Id.ToString());
             var keyB = string.Concat("b=", Id.ToString());
 
@@ -154,6 +173,8 @@ public class KeyStoreFixture
 
             Assert.That(sync ? keyStore.Contains(keyA) : await keyStore.ContainsAsync(keyA), Is.False, $"Should not contain key A / key = '{keyA}'");
             Assert.That(sync ? keyStore.Contains(keyB) : await keyStore.ContainsAsync(keyB), Is.False, $"Should not contain key B / key = '{keyB}'");
+
+            await databaseContext.TryDisposeAsync();
         }
     }
 }
