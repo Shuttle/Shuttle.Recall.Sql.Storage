@@ -16,12 +16,14 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly Type _removeEventStreamPipelineType = typeof(RemoveEventStreamPipeline);
 
         private readonly IDatabaseContextFactory _databaseContextFactory;
-        private readonly IOptions<EventStoreOptions> _eventStoreOptions;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly bool _manageEventStoreConnections;
+        private readonly string _connectionStringName;
 
-        public EventStoreHostedService(IOptions<EventStoreOptions> eventStoreOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory)
+        public EventStoreHostedService(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory)
         {
-            _eventStoreOptions = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions));
+            _manageEventStoreConnections = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value.ManageEventStoreConnections;
+            _connectionStringName = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value.ConnectionStringName;
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
 
@@ -39,7 +41,7 @@ namespace Shuttle.Recall.Sql.Storage
                 return;
             }
 
-            e.Pipeline.RegisterObserver(new DatabaseContextObserver(_eventStoreOptions, _databaseContextFactory));
+            e.Pipeline.RegisterObserver(new DatabaseContextObserver(_manageEventStoreConnections, _connectionStringName, _databaseContextFactory));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

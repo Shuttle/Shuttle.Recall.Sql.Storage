@@ -15,13 +15,15 @@ namespace Shuttle.Recall.Sql.Storage
         IPipelineObserver<OnBeforeRemoveEventStream>,
         IPipelineObserver<OnAfterRemoveEventStream>
     {
+        private readonly bool _manageEventStoreConnections;
+        private readonly string _connectionStringName;
         private const string StateKey = "DatabaseContextObserver:DatabaseContext";
         private readonly IDatabaseContextFactory _databaseContextFactory;
-        private readonly bool _manageEventStoreConnections;
 
-        public DatabaseContextObserver(IOptions<EventStoreOptions> eventStoreOptions, IDatabaseContextFactory databaseContextFactory)
+        public DatabaseContextObserver(bool manageEventStoreConnections, string connectionStringName, IDatabaseContextFactory databaseContextFactory)
         {
-            _manageEventStoreConnections = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value.ManageEventStoreConnections;
+            _manageEventStoreConnections = manageEventStoreConnections;
+            _connectionStringName = Guard.AgainstNullOrEmptyString(connectionStringName, nameof(connectionStringName));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
         }
 
@@ -45,7 +47,7 @@ namespace Shuttle.Recall.Sql.Storage
 
             if (!(eventStreamBuilder is { ShouldIgnoreConnectionRequest: true }) && _manageEventStoreConnections)
             {
-                pipelineEvent.Pipeline.State.Replace(StateKey, _databaseContextFactory.Create());
+                pipelineEvent.Pipeline.State.Replace(StateKey, _databaseContextFactory.Create(_connectionStringName));
             }
         }
 
