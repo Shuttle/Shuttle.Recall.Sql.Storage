@@ -43,20 +43,10 @@ public class StorageFixture : RecallFixture
 
         using (databaseContextFactory.Create())
         {
-            if (sync)
-            {
-                databaseGateway.Execute(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderId));
-                databaseGateway.Execute(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
-                databaseGateway.Execute(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderId));
-                databaseGateway.Execute(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
-            }
-            else
-            {
-                await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderId));
-                await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
-                await databaseGateway.ExecuteAsync(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderId));
-                await databaseGateway.ExecuteAsync(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
-            }
+            await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderId));
+            await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
+            await databaseGateway.ExecuteAsync(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderId));
+            await databaseGateway.ExecuteAsync(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
         }
 
         IDatabaseContext databaseContext = null;
