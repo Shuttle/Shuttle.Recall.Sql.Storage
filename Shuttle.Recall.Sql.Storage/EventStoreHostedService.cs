@@ -11,6 +11,7 @@ namespace Shuttle.Recall.Sql.Storage
 {
     public class EventStoreHostedService : IHostedService
     {
+        private readonly IDatabaseContextService _databaseContextService;
         private readonly Type _getEventStreamPipelineType = typeof(GetEventStreamPipeline);
         private readonly Type _saveEventStreamPipelineType = typeof(SaveEventStreamPipeline);
         private readonly Type _removeEventStreamPipelineType = typeof(RemoveEventStreamPipeline);
@@ -20,18 +21,36 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly bool _manageEventStoreConnections;
         private readonly string _connectionStringName;
 
-        public EventStoreHostedService(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory)
+        public EventStoreHostedService(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory, IDatabaseContextService databaseContextService)
         {
             _manageEventStoreConnections = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value.ManageEventStoreConnections;
             _connectionStringName = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value.ConnectionStringName;
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
 
             pipelineFactory.PipelineCreated += OnPipelineCreated;
+            pipelineFactory.PipelineObtained += OnPipelineObtained;
+        }
+
+        private void OnPipelineObtained(object sender, PipelineEventArgs e)
+        {
+            _databaseContextService.GetAmbientScope();
+
+            var pipelineType = e.Pipeline.GetType();
+
+            if (pipelineType != _getEventStreamPipelineType &&
+                pipelineType != _saveEventStreamPipelineType &&
+                pipelineType != _removeEventStreamPipelineType)
+            {
+                return;
+            }
         }
 
         private void OnPipelineCreated(object sender, PipelineEventArgs e)
         {
+            _databaseContextService.GetAmbientScope();
+
             var pipelineType = e.Pipeline.GetType();
 
             if (pipelineType != _getEventStreamPipelineType &&
@@ -52,6 +71,7 @@ namespace Shuttle.Recall.Sql.Storage
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _pipelineFactory.PipelineCreated -= OnPipelineCreated;
+            _pipelineFactory.PipelineObtained -= OnPipelineObtained;
 
             await Task.CompletedTask;
         }
