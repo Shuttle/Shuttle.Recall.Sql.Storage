@@ -1,4 +1,3 @@
-using System;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -29,11 +28,9 @@ public class SqlConfiguration
             .AddSqlEventStorage(builder =>
             {
                 builder.Options.ConnectionStringName = "Shuttle";
-            })
-            .AddEventStore(builder =>
-            {
                 builder.Options.ManageEventStoreConnections = manageEventStoreConnections;
-            });
+            })
+            .AddEventStore();
     }
 
     [OneTimeSetUp]

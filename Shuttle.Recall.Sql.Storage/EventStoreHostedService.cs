@@ -18,13 +18,11 @@ namespace Shuttle.Recall.Sql.Storage
 
         private readonly IDatabaseContextFactory _databaseContextFactory;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly bool _manageEventStoreConnections;
-        private readonly string _connectionStringName;
+        private readonly SqlStorageOptions _sqlStorageOptions;
 
-        public EventStoreHostedService(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory, IDatabaseContextService databaseContextService)
+        public EventStoreHostedService(IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory, IDatabaseContextService databaseContextService)
         {
-            _manageEventStoreConnections = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value.ManageEventStoreConnections;
-            _connectionStringName = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value.ConnectionStringName;
+            _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
@@ -60,7 +58,7 @@ namespace Shuttle.Recall.Sql.Storage
                 return;
             }
 
-            e.Pipeline.RegisterObserver(new DatabaseContextObserver(_manageEventStoreConnections, _connectionStringName, _databaseContextFactory));
+            e.Pipeline.RegisterObserver(new DatabaseContextObserver(_sqlStorageOptions.ManageEventStoreConnections, _sqlStorageOptions.ConnectionStringName, _databaseContextFactory));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

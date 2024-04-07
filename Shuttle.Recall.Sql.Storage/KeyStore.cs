@@ -9,49 +9,17 @@ namespace Shuttle.Recall.Sql.Storage
 {
     public class KeyStore : IKeyStore
     {
-        private class ConnectionFactory
-        {
-            private class NullDisposable : IDisposable
-            {
-                public void Dispose()
-                {
-                }
-            }
-
-            private readonly IDisposable _nullDisposable = new NullDisposable();
-            private readonly EventStoreOptions _eventStoreOptions;
-            private readonly IDatabaseContextFactory _databaseContextFactory;
-            private readonly SqlStorageOptions _sqlStorageOptions;
-
-            public ConnectionFactory(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
-            {
-                _eventStoreOptions = Guard.AgainstNull(eventStoreOptions, nameof(eventStoreOptions)).Value;
-                _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
-                _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-            }
-
-            public IDisposable GetConnection(Action<EventStreamBuilder> builder = null)
-            {
-                var eventStreamBuilder = new EventStreamBuilder();
-
-                builder?.Invoke(eventStreamBuilder);
-
-                return !eventStreamBuilder.ShouldIgnoreConnectionRequest && _eventStoreOptions.ManageEventStoreConnections
-                 ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName)
-                 : _nullDisposable;
-            }
-        }
+        private readonly ConnectionFactory _connectionFactory;
 
         private readonly IDatabaseGateway _databaseGateway;
         private readonly IKeyStoreQueryFactory _queryFactory;
-        private readonly ConnectionFactory _connectionFactory;
 
-        public KeyStore(IOptions<EventStoreOptions> eventStoreOptions, IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
+        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
         {
             _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
 
-            _connectionFactory = new ConnectionFactory(eventStoreOptions, sqlStorageOptions, databaseContextFactory);
+            _connectionFactory = new ConnectionFactory(sqlStorageOptions, databaseContextFactory);
         }
 
         public bool Contains(string key, Action<EventStreamBuilder> builder = null)
@@ -129,6 +97,11 @@ namespace Shuttle.Recall.Sql.Storage
             await AddAsync(id, key, builder, cancellationToken, false).ConfigureAwait(false);
         }
 
+        public async Task RekeyAsync(string key, string rekey, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
+        {
+            await RekeyAsync(key, rekey, builder, cancellationToken, false).ConfigureAwait(false);
+        }
+
         private async Task AddAsync(Guid id, string key, Action<EventStreamBuilder> builder, CancellationToken cancellationToken, bool sync)
         {
             try
@@ -155,11 +128,6 @@ namespace Shuttle.Recall.Sql.Storage
             }
         }
 
-        public async Task RekeyAsync(string key, string rekey, Action<EventStreamBuilder> builder = null, CancellationToken cancellationToken = default)
-        {
-            await RekeyAsync(key, rekey, builder, cancellationToken, false).ConfigureAwait(false);
-        }
-
         private async Task RekeyAsync(string key, string rekey, Action<EventStreamBuilder> builder, CancellationToken cancellationToken, bool sync)
         {
             try
@@ -183,6 +151,38 @@ namespace Shuttle.Recall.Sql.Storage
                 }
 
                 throw;
+            }
+        }
+
+        private class ConnectionFactory
+        {
+            private readonly IDatabaseContextFactory _databaseContextFactory;
+
+            private readonly IDisposable _nullDisposable = new NullDisposable();
+            private readonly SqlStorageOptions _sqlStorageOptions;
+
+            public ConnectionFactory(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
+            {
+                _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
+                _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
+            }
+
+            public IDisposable GetConnection(Action<EventStreamBuilder> builder = null)
+            {
+                var eventStreamBuilder = new EventStreamBuilder();
+
+                builder?.Invoke(eventStreamBuilder);
+
+                return !eventStreamBuilder.ShouldIgnoreConnectionRequest && _sqlStorageOptions.ManageEventStoreConnections
+                    ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName)
+                    : _nullDisposable;
+            }
+
+            private class NullDisposable : IDisposable
+            {
+                public void Dispose()
+                {
+                }
             }
         }
     }
