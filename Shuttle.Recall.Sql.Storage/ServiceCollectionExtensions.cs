@@ -24,15 +24,15 @@ namespace Shuttle.Recall.Sql.Storage
                 options.ManageEventStoreConnections = dataAccessBuilder.Options.ManageEventStoreConnections;
             });
 
-            services.TryAddSingleton<IScriptProvider, ScriptProvider>();
-            services.TryAddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
-            services.TryAddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
-            services.TryAddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
-            services.TryAddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
-            services.TryAddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
-            services.TryAddSingleton<IKeyStore, KeyStore>();
-            services.TryAddSingleton<IEventTypeStore, EventTypeStore>();
-            services.TryAddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+            services.AddSingleton<IScriptProvider, ScriptProvider>();
+            services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
+            services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
+            services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
+            services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
+            services.AddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
+            services.AddSingleton<IKeyStore, KeyStore>();
+            services.AddSingleton<IEventTypeStore, EventTypeStore>();
+            services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
 
             services.AddHostedService<EventStoreHostedService>();
 

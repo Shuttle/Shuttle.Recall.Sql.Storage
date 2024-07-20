@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage", "Shuttle.Recall.Sql.Storage\Shuttle.Recall.Sql.Storage.csproj", "{759B3D91-A3E1-4454-826A-AD208A3C8759}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Recall.Sql.Storage", "Shuttle.Recall.Sql.Storage\Shuttle.Recall.Sql.Storage.csproj", "{759B3D91-A3E1-4454-826A-AD208A3C8759}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Recall.Sql.Storage.Tests", "Shuttle.Recall.Sql.Storage.Tests\Shuttle.Recall.Sql.Storage.Tests.csproj", "{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Recall.Sql.Storage.Tests", "Shuttle.Recall.Sql.Storage.Tests\Shuttle.Recall.Sql.Storage.Tests.csproj", "{B6BB3675-CE99-46D6-9DFC-000F0EA69C78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67261EB1-3F84-4659-AA26-E999C40611A4}"
 	ProjectSection(SolutionItems) = preProject

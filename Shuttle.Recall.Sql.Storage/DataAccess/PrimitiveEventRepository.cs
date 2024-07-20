@@ -19,34 +19,6 @@ namespace Shuttle.Recall.Sql.Storage
             _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
         }
 
-        public void Remove(Guid id)
-        {
-            _databaseGateway.Execute(_queryFactory.RemoveSnapshot(id));
-            _databaseGateway.Execute(_queryFactory.RemoveEventStream(id));
-        }
-
-        public IEnumerable<PrimitiveEvent> Get(Guid id)
-        {
-            return _queryMapper.MapObjects<PrimitiveEvent>(_queryFactory.GetEventStream(id));
-        }
-
-        public long Save(PrimitiveEvent primitiveEvent)
-        {
-            var result = _databaseGateway.GetScalar<long>(_queryFactory.SaveEvent(primitiveEvent));
-
-            if (primitiveEvent.IsSnapshot)
-            {
-                _databaseGateway.Execute(_queryFactory.SaveSnapshot(primitiveEvent));
-            }
-
-            return result;
-        }
-
-        public long GetSequenceNumber(Guid id)
-        {
-            return _databaseGateway.GetScalar<long>(_queryFactory.GetSequenceNumber(id));
-        }
-
         public async Task RemoveAsync(Guid id)
         {
             await _databaseGateway.ExecuteAsync(_queryFactory.RemoveSnapshot(id)).ConfigureAwait(false);

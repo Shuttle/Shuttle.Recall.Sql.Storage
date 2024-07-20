@@ -42,6 +42,7 @@ public class KeyStoreFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
+        var databaseContextService = serviceProvider.GetRequiredService<IDatabaseContextService>();
         var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
         var databaseGateway = serviceProvider.GetRequiredService<IDatabaseGateway>();
         var keyStore = serviceProvider.GetRequiredService<IKeyStore>();
@@ -62,6 +63,7 @@ public class KeyStoreFixture
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
+            IDisposable scope = null;
             IDatabaseContext databaseContext = null;
 
             if (!manageEventStoreConnections)
@@ -175,6 +177,7 @@ public class KeyStoreFixture
             Assert.That(sync ? keyStore.Contains(keyB) : await keyStore.ContainsAsync(keyB), Is.False, $"Should not contain key B / key = '{keyB}'");
 
             await databaseContext.TryDisposeAsync();
+            await scope.TryDisposeAsync();
         }
     }
 }

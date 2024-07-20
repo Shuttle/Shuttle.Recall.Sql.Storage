@@ -2,11 +2,10 @@
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Recall.Sql.Storage
 {
-    public class DatabaseContextObserver : 
+    public class DatabaseContextObserver :
         IPipelineObserver<OnBeforeGetStreamEvents>,
         IPipelineObserver<OnAfterGetStreamEvents>,
         IPipelineObserver<OnBeforeSavePrimitiveEvents>,
@@ -14,15 +13,12 @@ namespace Shuttle.Recall.Sql.Storage
         IPipelineObserver<OnBeforeRemoveEventStream>,
         IPipelineObserver<OnAfterRemoveEventStream>
     {
-        private readonly bool _manageEventStoreConnections;
-        private readonly string _connectionStringName;
-        private const string StateKey = "DatabaseContextObserver:DatabaseContext";
         private readonly IDatabaseContextFactory _databaseContextFactory;
 
-        public DatabaseContextObserver(bool manageEventStoreConnections, string connectionStringName, IDatabaseContextFactory databaseContextFactory)
+        private const string StateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
+
+        public DatabaseContextObserver(IDatabaseContextFactory databaseContextFactory)
         {
-            _manageEventStoreConnections = manageEventStoreConnections;
-            _connectionStringName = Guard.AgainstNullOrEmptyString(connectionStringName, nameof(connectionStringName));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
         }
 
@@ -33,21 +29,14 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnBeforeGetStreamEvents pipelineEvent)
         {
-            SetDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await CreateDatabaseContextAsync(pipelineEvent);
         }
 
-        private void SetDatabaseContext(PipelineEvent pipelineEvent)
+        private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
         {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            pipelineEvent.Pipeline.State.Replace(StateKey, _databaseContextFactory.Create());
 
-            var eventStreamBuilder = state.GetEventStreamBuilder();
-
-            if (!(eventStreamBuilder is { ShouldIgnoreConnectionRequest: true }) && _manageEventStoreConnections)
-            {
-                pipelineEvent.Pipeline.State.Replace(StateKey, _databaseContextFactory.Create(_connectionStringName));
-            }
+            await Task.CompletedTask;
         }
 
         public void Execute(OnAfterGetStreamEvents pipelineEvent)
@@ -57,14 +46,14 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnAfterGetStreamEvents pipelineEvent)
         {
-            ReleaseDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
-        private void ReleaseDatabaseContext(PipelineEvent pipelineEvent)
+        private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
         {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State.Get<IDatabaseContext>(StateKey)?.TryDispose();
+            pipelineEvent.Pipeline.State.Get<IDatabaseContext>(StateKey).Dispose();
+
+            await Task.CompletedTask;
         }
 
         public void Execute(OnBeforeSavePrimitiveEvents pipelineEvent)
@@ -74,9 +63,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnBeforeSavePrimitiveEvents pipelineEvent)
         {
-            SetDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await CreateDatabaseContextAsync(pipelineEvent);
         }
 
         public void Execute(OnAfterSavePrimitiveEvents pipelineEvent)
@@ -86,9 +73,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnAfterSavePrimitiveEvents pipelineEvent)
         {
-            ReleaseDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
         public void Execute(OnBeforeRemoveEventStream pipelineEvent)
@@ -98,9 +83,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnBeforeRemoveEventStream pipelineEvent)
         {
-            SetDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await CreateDatabaseContextAsync(pipelineEvent);
         }
 
         public void Execute(OnAfterRemoveEventStream pipelineEvent)
@@ -110,9 +93,7 @@ namespace Shuttle.Recall.Sql.Storage
 
         public async Task ExecuteAsync(OnAfterRemoveEventStream pipelineEvent)
         {
-            ReleaseDatabaseContext(pipelineEvent);
-
-            await Task.CompletedTask;
+            await DisposeDatabaseContextAsync(pipelineEvent);
         }
     }
 }

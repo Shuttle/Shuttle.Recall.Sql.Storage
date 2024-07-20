@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
@@ -41,7 +42,7 @@ public class StorageFixture : RecallFixture
         var databaseGateway = serviceProvider.GetRequiredService<IDatabaseGateway>();
         var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
 
-        using (databaseContextFactory.Create())
+        await using (databaseContextFactory.Create())
         {
             await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderId));
             await databaseGateway.ExecuteAsync(new Query("delete from EventStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
@@ -49,10 +50,12 @@ public class StorageFixture : RecallFixture
             await databaseGateway.ExecuteAsync(new Query("delete from SnapshotStore where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
         }
 
+        IDisposable scope = null;
         IDatabaseContext databaseContext = null;
 
         if (!manageEventStoreConnections)
         {
+            scope = new DatabaseContextScope();
             databaseContext = databaseContextFactory.Create();
         }
 
@@ -68,5 +71,6 @@ public class StorageFixture : RecallFixture
         }
 
         databaseContext?.Dispose();
+        scope?.Dispose();
     }
 }

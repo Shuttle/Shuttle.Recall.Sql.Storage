@@ -14,7 +14,7 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IDatabaseGateway _databaseGateway;
         private readonly IKeyStoreQueryFactory _queryFactory;
 
-        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
+        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
         {
             _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
@@ -173,9 +173,7 @@ namespace Shuttle.Recall.Sql.Storage
 
                 builder?.Invoke(eventStreamBuilder);
 
-                return !eventStreamBuilder.ShouldIgnoreConnectionRequest && _sqlStorageOptions.ManageEventStoreConnections
-                    ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName)
-                    : _nullDisposable;
+                return _sqlStorageOptions.ManageEventStoreConnections ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName) : _nullDisposable;
             }
 
             private class NullDisposable : IDisposable
