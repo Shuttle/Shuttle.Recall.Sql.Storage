@@ -21,7 +21,6 @@ namespace Shuttle.Recall.Sql.Storage
             services.AddOptions<SqlStorageOptions>().Configure(options =>
             {
                 options.ConnectionStringName = dataAccessBuilder.Options.ConnectionStringName;
-                options.ManageEventStoreConnections = dataAccessBuilder.Options.ManageEventStoreConnections;
             });
 
             services.AddSingleton<IScriptProvider, ScriptProvider>();

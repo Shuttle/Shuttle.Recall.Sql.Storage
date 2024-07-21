@@ -17,16 +17,19 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly Type _saveEventStreamPipelineType = typeof(SaveEventStreamPipeline);
         private readonly Type _removeEventStreamPipelineType = typeof(RemoveEventStreamPipeline);
 
-        private readonly IDatabaseContextFactory _databaseContextFactory;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly SqlStorageOptions _sqlStorageOptions;
 
-        public EventStoreHostedService(IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextFactory databaseContextFactory)
+        private readonly DatabaseContextObserver _databaseContextObserver;
+
+        public EventStoreHostedService(IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
         {
-            _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-            
+
+            _databaseContextObserver = new DatabaseContextObserver(
+                Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value,
+                Guard.AgainstNull(databaseContextService, nameof(databaseContextService)),
+                Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory)));
+
             pipelineFactory.PipelineCreated += OnPipelineCreated;
         }
 
@@ -34,15 +37,14 @@ namespace Shuttle.Recall.Sql.Storage
         {
             var pipelineType = e.Pipeline.GetType();
 
-            if (!_sqlStorageOptions.ManageEventStoreConnections ||
-                pipelineType != _getEventStreamPipelineType &&
+            if (pipelineType != _getEventStreamPipelineType &&
                 pipelineType != _saveEventStreamPipelineType &&
                 pipelineType != _removeEventStreamPipelineType)
             {
                 return;
             }
 
-            e.Pipeline.RegisterObserver(new DatabaseContextObserver(_databaseContextFactory));
+            e.Pipeline.RegisterObserver(_databaseContextObserver);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

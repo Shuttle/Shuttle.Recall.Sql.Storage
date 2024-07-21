@@ -23,20 +23,20 @@ public class StorageFixture : RecallFixture
     }
 
     [Test]
-    public void Should_be_able_to_exercise_event_store_with_managed_connections()
+    public void Should_be_able_to_exercise_event_store_with_existing_database_context()
     {
         Should_be_able_to_exercise_event_store_async(true, true).GetAwaiter().GetResult();
     }
 
     [Test]
-    public async Task Should_be_able_to_exercise_event_store_with_managed_connections_async()
+    public async Task Should_be_able_to_exercise_event_store_with_existing_database_context_async()
     {
         await Should_be_able_to_exercise_event_store_async(true, false);
     }
 
-    private async Task Should_be_able_to_exercise_event_store_async(bool manageEventStoreConnections, bool sync)
+    private async Task Should_be_able_to_exercise_event_store_async(bool createDatabaseContext, bool sync)
     {
-        var services = SqlConfiguration.GetServiceCollection(manageEventStoreConnections, new ServiceCollection().AddSingleton(new Mock<IProjectionRepository>().Object));
+        var services = SqlConfiguration.GetServiceCollection(new ServiceCollection().AddSingleton(new Mock<IProjectionRepository>().Object));
 
         var serviceProvider = services.BuildServiceProvider();
         var databaseGateway = serviceProvider.GetRequiredService<IDatabaseGateway>();
@@ -53,7 +53,7 @@ public class StorageFixture : RecallFixture
         IDisposable scope = null;
         IDatabaseContext databaseContext = null;
 
-        if (!manageEventStoreConnections)
+        if (!createDatabaseContext)
         {
             scope = new DatabaseContextScope();
             databaseContext = databaseContextFactory.Create();
