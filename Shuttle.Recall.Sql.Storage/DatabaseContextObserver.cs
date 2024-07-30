@@ -2,6 +2,7 @@
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -17,12 +18,13 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IDatabaseContextFactory _databaseContextFactory;
         private readonly SqlStorageOptions _sqlStorageOptions;
 
-        private const string StateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
+        private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
+        private const string CloseConnectionStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:CloseConnection";
 
         public DatabaseContextObserver(SqlStorageOptions sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
         {
             _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions));
-            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(_databaseContextService));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
         }
 
@@ -38,9 +40,13 @@ namespace Shuttle.Recall.Sql.Storage
 
         private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
         {
-            if (!_databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName))
+            var hasExistingConnection = _databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName);
+
+            pipelineEvent.Pipeline.State.Add(CloseConnectionStateKey, !hasExistingConnection);
+
+            if (!hasExistingConnection)
             {
-                pipelineEvent.Pipeline.State.Add(StateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
+                pipelineEvent.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
             }
 
             await Task.CompletedTask;
@@ -58,8 +64,13 @@ namespace Shuttle.Recall.Sql.Storage
 
         private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
         {
-            pipelineEvent.Pipeline.State.Get<IDatabaseContext>(StateKey)?.Dispose();
-            pipelineEvent.Pipeline.State.Remove(StateKey);
+            if (pipelineEvent.Pipeline.State.Get<bool>(CloseConnectionStateKey))
+            {
+                await pipelineEvent.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey).TryDisposeAsync();
+            }
+
+            pipelineEvent.Pipeline.State.Remove(DatabaseContextStateKey);
+            pipelineEvent.Pipeline.State.Remove(CloseConnectionStateKey);
 
             await Task.CompletedTask;
         }

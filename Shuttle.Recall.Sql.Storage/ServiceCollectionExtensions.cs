@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Data.ThreadDatabaseContextScope;
 
 namespace Shuttle.Recall.Sql.Storage
 {
@@ -32,6 +33,7 @@ namespace Shuttle.Recall.Sql.Storage
             services.AddSingleton<IKeyStore, KeyStore>();
             services.AddSingleton<IEventTypeStore, EventTypeStore>();
             services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+            services.AddThreadDatabaseContextScope();
 
             services.AddHostedService<EventStoreHostedService>();
 

@@ -14,12 +14,12 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IDatabaseGateway _databaseGateway;
         private readonly IKeyStoreQueryFactory _queryFactory;
 
-        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
+        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
         {
             _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
 
-            _connectionFactory = new ConnectionFactory(sqlStorageOptions, databaseContextService, databaseContextFactory);
+            _connectionFactory = new ConnectionFactory(sqlStorageOptions, databaseContextFactory);
         }
 
         public bool Contains(string key, Action<EventStreamBuilder> builder = null)
@@ -156,16 +156,13 @@ namespace Shuttle.Recall.Sql.Storage
 
         private class ConnectionFactory
         {
-            private readonly IDatabaseContextService _databaseContextService;
             private readonly IDatabaseContextFactory _databaseContextFactory;
 
-            private readonly IDisposable _nullDisposable = new NullDisposable();
             private readonly SqlStorageOptions _sqlStorageOptions;
 
-            public ConnectionFactory(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
+            public ConnectionFactory(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
             {
                 _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
-                _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
                 _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
             }
 
@@ -175,14 +172,7 @@ namespace Shuttle.Recall.Sql.Storage
 
                 builder?.Invoke(eventStreamBuilder);
 
-                return !_databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName) ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName) : _nullDisposable;
-            }
-
-            private class NullDisposable : IDisposable
-            {
-                public void Dispose()
-                {
-                }
+                return _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
             }
         }
     }

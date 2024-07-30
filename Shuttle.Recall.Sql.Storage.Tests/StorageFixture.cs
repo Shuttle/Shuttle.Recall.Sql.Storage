@@ -55,7 +55,6 @@ public class StorageFixture : RecallFixture
 
         if (!createDatabaseContext)
         {
-            scope = new DatabaseContextScope();
             databaseContext = databaseContextFactory.Create();
         }
 

@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Shuttle.Core.Data" Version="16.0.2" />
+    <PackageReference Include="Shuttle.Core.Data.ThreadDatabaseContextScope" Version="16.0.2" />
     <PackageReference Include="Shuttle.Recall" Version="18.0.0" />
   </ItemGroup>
 

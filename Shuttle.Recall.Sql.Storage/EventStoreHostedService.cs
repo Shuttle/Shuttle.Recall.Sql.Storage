@@ -25,10 +25,7 @@ namespace Shuttle.Recall.Sql.Storage
         {
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
-            _databaseContextObserver = new DatabaseContextObserver(
-                Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value,
-                Guard.AgainstNull(databaseContextService, nameof(databaseContextService)),
-                Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory)));
+            _databaseContextObserver = new DatabaseContextObserver(Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value, databaseContextService, databaseContextFactory);
 
             pipelineFactory.PipelineCreated += OnPipelineCreated;
         }
