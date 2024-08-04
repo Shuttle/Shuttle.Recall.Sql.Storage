@@ -12,44 +12,17 @@ namespace Shuttle.Recall.Sql.Storage
         IPipelineObserver<OnBeforeSavePrimitiveEvents>,
         IPipelineObserver<OnAfterSavePrimitiveEvents>,
         IPipelineObserver<OnBeforeRemoveEventStream>,
-        IPipelineObserver<OnAfterRemoveEventStream>
+        IPipelineObserver<OnAfterRemoveEventStream>,
+        IPipelineObserver<OnPipelineException>
     {
-        private readonly IDatabaseContextService _databaseContextService;
+        private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
         private readonly IDatabaseContextFactory _databaseContextFactory;
         private readonly SqlStorageOptions _sqlStorageOptions;
 
-        private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
-        private const string CloseConnectionStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:CloseConnection";
-
-        public DatabaseContextObserver(SqlStorageOptions sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
+        public DatabaseContextObserver(SqlStorageOptions sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
         {
             _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions));
-            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-        }
-
-        public void Execute(OnBeforeGetStreamEvents pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnBeforeGetStreamEvents pipelineEvent)
-        {
-            await CreateDatabaseContextAsync(pipelineEvent);
-        }
-
-        private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
-        {
-            var hasExistingConnection = _databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName);
-
-            pipelineEvent.Pipeline.State.Add(CloseConnectionStateKey, !hasExistingConnection);
-
-            if (!hasExistingConnection)
-            {
-                pipelineEvent.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
-            }
-
-            await Task.CompletedTask;
         }
 
         public void Execute(OnAfterGetStreamEvents pipelineEvent)
@@ -62,27 +35,14 @@ namespace Shuttle.Recall.Sql.Storage
             await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
-        private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
-        {
-            if (pipelineEvent.Pipeline.State.Get<bool>(CloseConnectionStateKey))
-            {
-                await pipelineEvent.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey).TryDisposeAsync();
-            }
-
-            pipelineEvent.Pipeline.State.Remove(DatabaseContextStateKey);
-            pipelineEvent.Pipeline.State.Remove(CloseConnectionStateKey);
-
-            await Task.CompletedTask;
-        }
-
-        public void Execute(OnBeforeSavePrimitiveEvents pipelineEvent)
+        public void Execute(OnAfterRemoveEventStream pipelineEvent)
         {
             ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
         }
 
-        public async Task ExecuteAsync(OnBeforeSavePrimitiveEvents pipelineEvent)
+        public async Task ExecuteAsync(OnAfterRemoveEventStream pipelineEvent)
         {
-            await CreateDatabaseContextAsync(pipelineEvent);
+            await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
         public void Execute(OnAfterSavePrimitiveEvents pipelineEvent)
@@ -95,6 +55,16 @@ namespace Shuttle.Recall.Sql.Storage
             await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
+        public void Execute(OnBeforeGetStreamEvents pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnBeforeGetStreamEvents pipelineEvent)
+        {
+            await CreateDatabaseContextAsync(pipelineEvent);
+        }
+
         public void Execute(OnBeforeRemoveEventStream pipelineEvent)
         {
             ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
@@ -105,14 +75,43 @@ namespace Shuttle.Recall.Sql.Storage
             await CreateDatabaseContextAsync(pipelineEvent);
         }
 
-        public void Execute(OnAfterRemoveEventStream pipelineEvent)
+        public void Execute(OnBeforeSavePrimitiveEvents pipelineEvent)
         {
             ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
         }
 
-        public async Task ExecuteAsync(OnAfterRemoveEventStream pipelineEvent)
+        public async Task ExecuteAsync(OnBeforeSavePrimitiveEvents pipelineEvent)
+        {
+            await CreateDatabaseContextAsync(pipelineEvent);
+        }
+
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
         {
             await DisposeDatabaseContextAsync(pipelineEvent);
+        }
+
+        private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
+        {
+            pipelineEvent.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
+
+            await Task.CompletedTask;
+        }
+
+        private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
+        {
+            var databaseContext = pipelineEvent.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey);
+
+            if (databaseContext != null)
+            {
+                await databaseContext.TryDisposeAsync();
+            }
+
+            pipelineEvent.Pipeline.State.Remove(DatabaseContextStateKey);
         }
     }
 }

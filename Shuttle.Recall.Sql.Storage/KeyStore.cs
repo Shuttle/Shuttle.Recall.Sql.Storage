@@ -14,12 +14,12 @@ namespace Shuttle.Recall.Sql.Storage
         private readonly IDatabaseGateway _databaseGateway;
         private readonly IKeyStoreQueryFactory _queryFactory;
 
-        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
+        public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory, IDatabaseGateway databaseGateway, IKeyStoreQueryFactory queryFactory)
         {
             _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             _queryFactory = Guard.AgainstNull(queryFactory, nameof(queryFactory));
 
-            _connectionFactory = new ConnectionFactory(sqlStorageOptions, databaseContextFactory);
+            _connectionFactory = new ConnectionFactory(sqlStorageOptions, Guard.AgainstNull(databaseContextService, nameof(databaseContextService)), databaseContextFactory);
         }
 
         public bool Contains(string key, Action<EventStreamBuilder> builder = null)
@@ -156,14 +156,16 @@ namespace Shuttle.Recall.Sql.Storage
 
         private class ConnectionFactory
         {
+            private readonly IDatabaseContextService _databaseContextService;
             private readonly IDatabaseContextFactory _databaseContextFactory;
 
             private readonly SqlStorageOptions _sqlStorageOptions;
 
-            public ConnectionFactory(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
+            public ConnectionFactory(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
             {
-                _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value;
-                _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
+                _sqlStorageOptions = sqlStorageOptions.Value;
+                _databaseContextService = databaseContextService;
+                _databaseContextFactory = databaseContextFactory;
             }
 
             public IDisposable GetConnection(Action<EventStreamBuilder> builder = null)
@@ -172,8 +174,45 @@ namespace Shuttle.Recall.Sql.Storage
 
                 builder?.Invoke(eventStreamBuilder);
 
-                return _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
+                var databaseContext = _databaseContextService.Find(candidate => candidate.Name.Equals(_sqlStorageOptions.ConnectionStringName));
+
+                if (databaseContext == null)
+                {
+                    return _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
+                }
+
+                var activeDatabaseContext = _databaseContextService.HasActive ? _databaseContextService.Active : null;
+
+                if (!databaseContext.IsActive)
+                {
+                    _databaseContextService.Activate(databaseContext);
+                }
+
+                return new ActivateDatabaseContext(_databaseContextService, activeDatabaseContext);
             }
+
+            private class ActivateDatabaseContext : IDisposable
+            {
+                private readonly IDatabaseContextService _databaseContextService;
+                private readonly IDatabaseContext _databaseContext;
+
+                public ActivateDatabaseContext(IDatabaseContextService databaseContextService, IDatabaseContext databaseContext)
+                {
+                    _databaseContextService = databaseContextService;
+                    _databaseContext = databaseContext;
+                }
+
+                public void Dispose()
+                {
+                    if (_databaseContext == null || _databaseContext.IsActive)
+                    {
+                        return;
+                    }
+
+                    _databaseContextService.Activate(_databaseContext);
+                }
+            }
+
         }
     }
 }
