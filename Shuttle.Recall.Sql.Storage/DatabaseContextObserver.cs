@@ -12,47 +12,20 @@ namespace Shuttle.Recall.Sql.Storage
         IPipelineObserver<OnBeforeSavePrimitiveEvents>,
         IPipelineObserver<OnAfterSavePrimitiveEvents>,
         IPipelineObserver<OnBeforeRemoveEventStream>,
-        IPipelineObserver<OnAfterRemoveEventStream>,
-        IPipelineObserver<OnPipelineException>
+        IPipelineObserver<OnAfterRemoveEventStream>
     {
-        private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
+        private readonly IDatabaseContextService _databaseContextService;
         private readonly IDatabaseContextFactory _databaseContextFactory;
         private readonly SqlStorageOptions _sqlStorageOptions;
 
-        public DatabaseContextObserver(SqlStorageOptions sqlStorageOptions, IDatabaseContextFactory databaseContextFactory)
+        private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
+        private const string DisposeDatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DisposeDatabaseContext";
+
+        public DatabaseContextObserver(SqlStorageOptions sqlStorageOptions, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
         {
             _sqlStorageOptions = Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _databaseContextFactory = Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-        }
-
-        public void Execute(OnAfterGetStreamEvents pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnAfterGetStreamEvents pipelineEvent)
-        {
-            await DisposeDatabaseContextAsync(pipelineEvent);
-        }
-
-        public void Execute(OnAfterRemoveEventStream pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnAfterRemoveEventStream pipelineEvent)
-        {
-            await DisposeDatabaseContextAsync(pipelineEvent);
-        }
-
-        public void Execute(OnAfterSavePrimitiveEvents pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnAfterSavePrimitiveEvents pipelineEvent)
-        {
-            await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
         public void Execute(OnBeforeGetStreamEvents pipelineEvent)
@@ -65,14 +38,41 @@ namespace Shuttle.Recall.Sql.Storage
             await CreateDatabaseContextAsync(pipelineEvent);
         }
 
-        public void Execute(OnBeforeRemoveEventStream pipelineEvent)
+        private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
+        {
+            var hasDatabaseContext = _databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName);
+
+            pipelineEvent.Pipeline.State.Add(DisposeDatabaseContextStateKey, !hasDatabaseContext);
+
+            if (!hasDatabaseContext)
+            {
+                pipelineEvent.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public void Execute(OnAfterGetStreamEvents pipelineEvent)
         {
             ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
         }
 
-        public async Task ExecuteAsync(OnBeforeRemoveEventStream pipelineEvent)
+        public async Task ExecuteAsync(OnAfterGetStreamEvents pipelineEvent)
         {
-            await CreateDatabaseContextAsync(pipelineEvent);
+            await DisposeDatabaseContextAsync(pipelineEvent);
+        }
+
+        private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
+        {
+            if (pipelineEvent.Pipeline.State.Get<bool>(DisposeDatabaseContextStateKey))
+            {
+                await pipelineEvent.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey).TryDisposeAsync();
+            }
+
+            pipelineEvent.Pipeline.State.Remove(DatabaseContextStateKey);
+            pipelineEvent.Pipeline.State.Remove(DisposeDatabaseContextStateKey);
+
+            await Task.CompletedTask;
         }
 
         public void Execute(OnBeforeSavePrimitiveEvents pipelineEvent)
@@ -85,33 +85,34 @@ namespace Shuttle.Recall.Sql.Storage
             await CreateDatabaseContextAsync(pipelineEvent);
         }
 
-        public void Execute(OnPipelineException pipelineEvent)
+        public void Execute(OnAfterSavePrimitiveEvents pipelineEvent)
         {
             ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
         }
 
-        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
+        public async Task ExecuteAsync(OnAfterSavePrimitiveEvents pipelineEvent)
         {
             await DisposeDatabaseContextAsync(pipelineEvent);
         }
 
-        private async Task CreateDatabaseContextAsync(PipelineEvent pipelineEvent)
+        public void Execute(OnBeforeRemoveEventStream pipelineEvent)
         {
-            pipelineEvent.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
-
-            await Task.CompletedTask;
+            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
         }
 
-        private async Task DisposeDatabaseContextAsync(PipelineEvent pipelineEvent)
+        public async Task ExecuteAsync(OnBeforeRemoveEventStream pipelineEvent)
         {
-            var databaseContext = pipelineEvent.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey);
+            await CreateDatabaseContextAsync(pipelineEvent);
+        }
 
-            if (databaseContext != null)
-            {
-                await databaseContext.TryDisposeAsync();
-            }
+        public void Execute(OnAfterRemoveEventStream pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
+        }
 
-            pipelineEvent.Pipeline.State.Remove(DatabaseContextStateKey);
+        public async Task ExecuteAsync(OnAfterRemoveEventStream pipelineEvent)
+        {
+            await DisposeDatabaseContextAsync(pipelineEvent);
         }
     }
 }
