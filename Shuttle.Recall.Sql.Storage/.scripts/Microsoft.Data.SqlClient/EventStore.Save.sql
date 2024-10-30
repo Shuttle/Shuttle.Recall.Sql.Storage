@@ -1,21 +1,21 @@
-﻿insert into [dbo].[EventStore] 
+﻿insert into [{schema}].[EventStore] 
 (
 	[Id],
 	[Version],
+	[CorrelationId],
 	[EventTypeId],
 	[EventEnvelope],
 	[EventId],
-	[IsSnapshot],
 	[DateRegistered]	
 )
 values
 (
 	@Id,
 	@Version,
+	@CorrelationId,
 	@EventTypeId,
 	@EventEnvelope,
 	@EventId,
-	@IsSnapshot,
 	@DateRegistered
 );
 

@@ -1,1 +1,1 @@
-﻿select max(SequenceNumber) from [dbo].[EventStore] where Id = @Id
+﻿select max(SequenceNumber) from [{schema}].[EventStore] where Id = @Id

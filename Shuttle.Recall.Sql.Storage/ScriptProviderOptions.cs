@@ -1,6 +1,5 @@
-﻿namespace Shuttle.Recall.Sql.Storage
+﻿namespace Shuttle.Recall.Sql.Storage;
+
+public class ScriptProviderOptions : Core.Data.ScriptProviderOptions
 {
-	public class ScriptProviderOptions : Core.Data.ScriptProviderOptions
-	{
-	}
 }

@@ -1,39 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public class EventTypeStore : IEventTypeStore
 {
-    public class EventTypeStore : IEventTypeStore
+    private readonly Dictionary<string, Guid> _cache = new();
+    private readonly SemaphoreSlim _lock = new(1,1);
+    private readonly IEventTypeStoreQueryFactory _queryFactory;
+
+    public EventTypeStore(IEventTypeStoreQueryFactory queryFactory)
     {
-        private readonly IDatabaseGateway _databaseGateway;
-        private readonly IEventTypeStoreQueryFactory _queryFactory;
-        private readonly Dictionary<string, Guid> _cache = new Dictionary<string, Guid>();
-        private readonly object _lock = new object();
+        _queryFactory = Guard.AgainstNull(queryFactory);
+    }
 
-        public EventTypeStore(IDatabaseGateway databaseGateway, IEventTypeStoreQueryFactory queryFactory)
+    public async Task<Guid> GetIdAsync(IDatabaseContext databaseContext, string typeName, CancellationToken cancellationToken = default)
+    {
+        await _lock.WaitAsync(cancellationToken);
+
+        try
         {
-            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
-            Guard.AgainstNull(queryFactory, nameof(queryFactory));
+            var key = typeName.ToLower();
 
-            _databaseGateway = databaseGateway;
-            _queryFactory = queryFactory;
-        }
-
-        public Guid GetId(string typeName)
-        {
-            lock (_lock)
+            if (!_cache.ContainsKey(key))
             {
-                var key = typeName.ToLower();
-
-                if (!_cache.ContainsKey(key))
-                {
-                    _cache.Add(key, _databaseGateway.GetScalar<Guid>(_queryFactory.GetId(typeName)));
-                }
-
-                return _cache[key];
+                _cache.Add(key, await databaseContext.GetScalarAsync<Guid>(_queryFactory.GetId(typeName), cancellationToken: cancellationToken));
             }
+
+            return _cache[key];
+        }
+        finally
+        {
+            _lock.Release();
         }
     }
 }

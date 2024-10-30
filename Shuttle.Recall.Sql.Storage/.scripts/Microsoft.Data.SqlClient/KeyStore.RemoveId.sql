@@ -1,1 +1,1 @@
-﻿delete from dbo.KeyStore where [Id] = @Id
+﻿delete from [{schema}].KeyStore where [Id] = @Id

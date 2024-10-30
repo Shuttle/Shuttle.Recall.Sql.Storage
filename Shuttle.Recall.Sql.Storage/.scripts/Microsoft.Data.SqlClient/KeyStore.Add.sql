@@ -1,4 +1,4 @@
-﻿insert into dbo.KeyStore
+﻿insert into [{schema}].KeyStore
 	(
         [Key],
 		[Id]

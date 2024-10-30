@@ -1,1 +1,1 @@
-﻿select Id from dbo.KeyStore where [Key] = @Key
+﻿select Id from [{schema}].KeyStore where [Key] = @Key

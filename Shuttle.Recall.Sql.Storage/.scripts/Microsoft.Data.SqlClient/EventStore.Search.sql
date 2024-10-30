@@ -1,15 +1,16 @@
 ﻿select top {0}
 	es.[Id],
 	es.[Version],
+	es.[CorrelationId],
 	et.[TypeName] EventType,
 	es.[EventEnvelope],
 	es.[EventId],
 	es.[SequenceNumber],
 	es.[DateRegistered]
 from 
-	[dbo].[EventStore] es
+	[{schema}].[EventStore] es
 inner join
-	[dbo].[EventType] et on et.Id = es.EventTypeId
+	[{schema}].[EventType] et on et.Id = es.EventTypeId
 where 
 	es.SequenceNumber >= @FromSequenceNumber
 {1}

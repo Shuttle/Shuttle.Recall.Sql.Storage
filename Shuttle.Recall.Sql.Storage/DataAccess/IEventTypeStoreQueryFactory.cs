@@ -1,9 +1,8 @@
 ﻿using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public interface IEventTypeStoreQueryFactory
 {
-    public interface IEventTypeStoreQueryFactory
-    {
-        IQuery GetId(string typeName);
-    }
+    IQuery GetId(string typeName);
 }

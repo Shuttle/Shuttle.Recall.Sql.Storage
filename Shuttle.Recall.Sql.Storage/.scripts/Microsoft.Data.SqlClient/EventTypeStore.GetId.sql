@@ -1,5 +1,5 @@
 ﻿merge
-	EventType t
+	[{schema}].EventType t
 using
 	(
 		select @TypeName
@@ -21,6 +21,6 @@ when not matched by target then
 select
 	Id
 from
-	EventType
+	[{schema}].EventType
 where
 	TypeName = @TypeName

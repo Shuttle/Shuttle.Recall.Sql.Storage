@@ -1,1 +1,0 @@
-﻿select Id from dbo.KeyStore where [Key] = @Key

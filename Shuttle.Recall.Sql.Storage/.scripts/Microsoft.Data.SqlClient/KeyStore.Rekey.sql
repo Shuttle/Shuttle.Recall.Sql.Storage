@@ -1,5 +1,5 @@
 ﻿update
-	dbo.KeyStore
+	[{schema}].KeyStore
 set
 	[Key] = @Rekey
 where

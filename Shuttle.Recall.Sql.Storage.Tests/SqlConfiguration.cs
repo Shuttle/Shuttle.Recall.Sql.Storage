@@ -11,7 +11,7 @@ namespace Shuttle.Recall.Sql.Storage.Tests;
 [SetUpFixture]
 public class SqlConfiguration
 {
-    public static IServiceCollection GetServiceCollection(IServiceCollection serviceCollection = null)
+    public static IServiceCollection GetServiceCollection(IServiceCollection? serviceCollection = null)
     {
         return (serviceCollection ?? new ServiceCollection())
             .AddSingleton<IConfiguration>(new ConfigurationBuilder().Build())

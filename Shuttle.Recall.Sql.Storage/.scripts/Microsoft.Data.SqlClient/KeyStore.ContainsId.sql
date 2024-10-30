@@ -1,1 +1,1 @@
-﻿if exists (select null from dbo.KeyStore where [Id] = @Id) select 1 else select 0
+﻿if exists (select null from [{schema}].KeyStore where [Id] = @Id) select 1 else select 0

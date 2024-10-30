@@ -1,1 +1,1 @@
-﻿delete from [dbo].[EventStore] where Id = @Id
+﻿delete from [{schema}].[EventStore] where Id = @Id

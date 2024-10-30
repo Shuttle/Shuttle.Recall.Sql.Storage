@@ -1,13 +1,11 @@
 ﻿using System;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public class ConcurrencyExceptionSpecification : IConcurrencyExceptionSpecification
 {
-    public class ConcurrencyExceptionSpecification : IConcurrencyExceptionSpecification
+    public bool IsSatisfiedBy(Exception exception)
     {
-        public bool IsSatisfiedBy(Exception exception)
-        {
-            return exception != null &&
-                   exception.Message.ToLower().Contains("violation of primary key");
-        }
+        return exception.Message.ToLower().Contains("violation of primary key");
     }
 }
