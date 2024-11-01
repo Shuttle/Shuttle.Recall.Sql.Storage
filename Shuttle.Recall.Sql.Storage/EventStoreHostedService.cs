@@ -20,9 +20,9 @@ public class EventStoreHostedService : IHostedService
 
     public EventStoreHostedService(IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory)
     {
-        _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+        _pipelineFactory = Guard.AgainstNull(pipelineFactory);
 
-        _databaseContextObserver = new(Guard.AgainstNull(sqlStorageOptions, nameof(sqlStorageOptions)).Value, databaseContextService, databaseContextFactory);
+        _databaseContextObserver = new(Guard.AgainstNull(Guard.AgainstNull(sqlStorageOptions).Value), databaseContextService, databaseContextFactory);
 
         pipelineFactory.PipelineCreated += OnPipelineCreated;
     }
