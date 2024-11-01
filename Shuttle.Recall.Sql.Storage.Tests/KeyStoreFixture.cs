@@ -27,11 +27,12 @@ public class KeyStoreFixture
         }
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        await using (databaseContextFactory.Create())
         {
             var keyA = string.Concat("a=", Id.ToString());
             var keyB = string.Concat("b=", Id.ToString());
 
-                await keyStore.AddAsync(Id, keyA);
+            await keyStore.AddAsync(Id, keyA);
 
             Assert.ThrowsAsync<DuplicateKeyException>(async () => await keyStore.AddAsync(Id, keyA), $"Should not be able to add duplicate key / id = {Id} / key = '{keyA}' / (ensure that your implementation throws a `DuplicateKeyException`)");
 

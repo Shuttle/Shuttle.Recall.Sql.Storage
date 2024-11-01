@@ -9,53 +9,45 @@ namespace Shuttle.Recall.Sql.Storage;
 
 public class KeyStore : IKeyStore
 {
-    private readonly IDatabaseContextFactory _databaseContextFactory;
+    private readonly IDatabaseContextService _databaseContextService;
     private readonly IKeyStoreQueryFactory _queryFactory;
-    private readonly SqlStorageOptions _sqlStorageOptions;
 
-    public KeyStore(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextFactory databaseContextFactory, IKeyStoreQueryFactory queryFactory)
+    public KeyStore(IDatabaseContextService databaseContextService, IKeyStoreQueryFactory queryFactory)
     {
-        _sqlStorageOptions = Guard.AgainstNull(Guard.AgainstNull(sqlStorageOptions).Value);
-        _databaseContextFactory = Guard.AgainstNull(databaseContextFactory);
+        _databaseContextService = Guard.AgainstNull(databaseContextService);
         _queryFactory = Guard.AgainstNull(queryFactory);
     }
 
     public async ValueTask<bool> ContainsAsync(string key, CancellationToken cancellationToken = default)
     {
-        await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-        return await databaseContext.GetScalarAsync<int>(_queryFactory.Contains(key), cancellationToken).ConfigureAwait(false) == 1;
+        return await _databaseContextService.Active.GetScalarAsync<int>(_queryFactory.Contains(key), cancellationToken).ConfigureAwait(false) == 1;
     }
 
     public async ValueTask<bool> ContainsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-        return await databaseContext.GetScalarAsync<int>(_queryFactory.Contains(id), cancellationToken).ConfigureAwait(false) == 1;
+        return await _databaseContextService.Active.GetScalarAsync<int>(_queryFactory.Contains(id), cancellationToken).ConfigureAwait(false) == 1;
     }
 
     public async ValueTask<Guid?> FindAsync(string key, CancellationToken cancellationToken = default)
     {
-        await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-        return await databaseContext.GetScalarAsync<Guid?>(_queryFactory.Get(key), cancellationToken).ConfigureAwait(false);
+        return await _databaseContextService.Active.GetScalarAsync<Guid?>(_queryFactory.Get(key), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-        await databaseContext.ExecuteAsync(_queryFactory.Remove(key), cancellationToken).ConfigureAwait(false);
+        await _databaseContextService.Active.ExecuteAsync(_queryFactory.Remove(key), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-        await databaseContext.ExecuteAsync(_queryFactory.Remove(id), cancellationToken).ConfigureAwait(false);
+        await _databaseContextService.Active.ExecuteAsync(_queryFactory.Remove(id), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task AddAsync(Guid id, string key, CancellationToken cancellationToken = default)
     {
         try
         {
-            await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-            await databaseContext.ExecuteAsync(_queryFactory.Add(id, key), cancellationToken).ConfigureAwait(false);
+            await _databaseContextService.Active.ExecuteAsync(_queryFactory.Add(id, key), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -72,8 +64,7 @@ public class KeyStore : IKeyStore
     {
         try
         {
-            await using var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName);
-            await databaseContext.ExecuteAsync(_queryFactory.Rekey(key, rekey), cancellationToken).ConfigureAwait(false);
+            await _databaseContextService.Active.ExecuteAsync(_queryFactory.Rekey(key, rekey), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

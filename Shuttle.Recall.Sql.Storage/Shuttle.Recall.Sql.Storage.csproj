@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="Shuttle.Core.Data" Version="20.0.0" />
-    <PackageReference Include="Shuttle.Core.Data.ThreadDatabaseContextScope" Version="17.0.0" />
+    <PackageReference Include="Shuttle.Core.Data.ThreadDatabaseContextScope" Version="20.0.0" />
     <PackageReference Include="Shuttle.Recall" Version="20.0.0" />
   </ItemGroup>
 

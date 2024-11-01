@@ -33,6 +33,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
         services.AddThreadDatabaseContextScope();
 
+        services.AddHostedService<EventStoreHostedService>();
+
         return services;
     }
 }
