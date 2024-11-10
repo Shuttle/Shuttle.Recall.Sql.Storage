@@ -24,6 +24,5 @@ public class StorageFixture : RecallFixture
         }
 
         await ExerciseStorageAsync(services);
-        await ExerciseStorageRemovalAsync(services);
     }
 }

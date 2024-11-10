@@ -30,7 +30,7 @@ public class PrimitiveEventQueryFactory : IPrimitiveEventQueryFactory
         return new Query(_scriptProvider.Get(_sqlStorageOptions.ConnectionStringName, "EventStore.GetEventStream")).AddParameter(Columns.Id, id);
     }
 
-    public IQuery Search(PrimitiveEvent.Specification specification, IEnumerable<Guid> eventTypeIds)
+    public IQuery Search(PrimitiveEventSpecification specification, IEnumerable<Guid> eventTypeIds)
     {
         Guard.AgainstNull(specification);
 

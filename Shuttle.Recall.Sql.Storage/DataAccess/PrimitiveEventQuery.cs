@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
@@ -23,7 +21,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
         _eventTypeStore = Guard.AgainstNull(eventTypeStore);
     }
 
-    public async Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEvent.Specification specification)
+    public async Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEventSpecification specification)
     {
         var databaseContext = _databaseContextService.Active;
 

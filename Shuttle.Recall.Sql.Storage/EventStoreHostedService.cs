@@ -50,6 +50,6 @@ public class EventStoreHostedService : IHostedService
             return;
         }
 
-        e.Pipeline.RegisterObserver(_databaseContextObserver);
+        e.Pipeline.AddObserver(_databaseContextObserver);
     }
 }

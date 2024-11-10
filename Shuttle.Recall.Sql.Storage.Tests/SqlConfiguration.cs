@@ -28,8 +28,7 @@ public class SqlConfiguration
             .AddSqlEventStorage(builder =>
             {
                 builder.Options.ConnectionStringName = "Shuttle";
-            })
-            .AddEventStore();
+            });
     }
 
     [OneTimeSetUp]
