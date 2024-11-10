@@ -15,6 +15,8 @@ public class PrimitiveEventSpecification
 
     public IEnumerable<Guid> Ids => _ids.AsReadOnly();
     public long SequenceNumberStart { get; private set; }
+    public int? ManagedThreadId { get; private set; }
+    public int MaximumRows { get; private set; }
 
     public PrimitiveEventSpecification AddEventType<T>()
     {
@@ -71,6 +73,20 @@ public class PrimitiveEventSpecification
     {
         SequenceNumberStart = sequenceNumberStart;
         Count = count;
+
+        return this;
+    }
+
+    public PrimitiveEventSpecification WithManagedThreadId(int managedThreadId)
+    {
+        ManagedThreadId = managedThreadId;
+
+        return this;
+    }
+
+    public PrimitiveEventSpecification WithMaximumRows(int maximumRows)
+    {
+        MaximumRows = maximumRows;
 
         return this;
     }
