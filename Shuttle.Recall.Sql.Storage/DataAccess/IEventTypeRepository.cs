@@ -5,7 +5,7 @@ using Shuttle.Core.Data;
 
 namespace Shuttle.Recall.Sql.Storage;
 
-public interface IEventTypeStore
+public interface IEventTypeRepository
 {
     Task<Guid> GetIdAsync(IDatabaseContext databaseContext, string typeName, CancellationToken cancellationToken = default);
 }

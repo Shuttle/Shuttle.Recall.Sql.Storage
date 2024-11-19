@@ -1,1 +1,0 @@
-﻿select max(SequenceNumber) from [{schema}].[EventStore] where Id = @Id

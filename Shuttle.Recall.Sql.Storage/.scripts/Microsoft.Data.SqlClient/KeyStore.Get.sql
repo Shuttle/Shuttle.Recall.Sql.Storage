@@ -1,1 +1,0 @@
-﻿select Id from [{schema}].KeyStore where [Key] = @Key

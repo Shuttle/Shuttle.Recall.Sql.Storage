@@ -14,18 +14,7 @@ services.AddSqlEventStorage();
 
 ## Database
 
-In order to create the relevant database structures execute the relevant `EventStoreCreate.sql` script:
-
-```
-%userprofile%\.nuget\packages\shuttle.recall.sql.storage\{version}\scripts\{provider}\EventStoreCreate.sql
-```
-
-## Supported providers
-
-- `Microsoft.Data.SqlClient`
-- `System.Data.SqlClient`
-
-If you'd like support for another SQL-based provider please feel free to give it a bash and send a pull request if you *do* go this route.  You are welcome to create an issue and assistance will be provided where possible.
+Please reference the `Shuttle.Recall.EntityFrameworkCore.SqlServer.Storage` package and use the Entity Framework Core migration mechanism to create the event store database structures.
 
 ## IKeyStore
 

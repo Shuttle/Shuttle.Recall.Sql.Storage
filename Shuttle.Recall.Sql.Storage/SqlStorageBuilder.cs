@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Recall.Sql.Storage;
@@ -20,4 +19,12 @@ public class SqlStorageBuilder
     }
 
     public IServiceCollection Services { get; }
+
+    public SqlStorageBuilder UseSqlServer()
+    {
+        Services.AddSingleton<IPrimitiveEventQueryFactory, SqlServer.PrimitiveEventQueryFactory>();
+        Services.AddSingleton<IEventTypeQueryFactory, SqlServer.EventTypeQueryFactory>();
+
+        return this;
+    }
 }

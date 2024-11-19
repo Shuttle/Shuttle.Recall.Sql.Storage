@@ -14,7 +14,7 @@ public class Columns
     public static readonly Column<byte[]> EventEnvelope = new("EventEnvelope", DbType.Binary);
     public static readonly Column<long> FromSequenceNumber = new("FromSequenceNumber", DbType.Int64);
     public static readonly Column<DateTime> DateRegistered = new("DateRegistered", DbType.DateTime);
-    public static readonly Column<string> Key = new("Key", DbType.AnsiString);
+    public static readonly Column<string> UniqueKey = new("UniqueKey", DbType.AnsiString);
     public static readonly Column<string> Rekey = new("Rekey", DbType.AnsiString);
     public static readonly Column<int> Version = new("Version", DbType.Int32);
 }

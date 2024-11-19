@@ -10,16 +10,16 @@ namespace Shuttle.Recall.Sql.Storage;
 public class PrimitiveEventRepository : IPrimitiveEventRepository
 {
     private readonly IDatabaseContextService _databaseContextService;
-    private readonly IEventTypeStore _eventTypeStore;
+    private readonly IEventTypeRepository _eventTypeRepository;
     private readonly IPrimitiveEventQueryFactory _queryFactory;
     private readonly IQueryMapper _queryMapper;
 
-    public PrimitiveEventRepository(IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeStore eventTypeStore)
+    public PrimitiveEventRepository(IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeRepository eventTypeRepository)
     {
         _databaseContextService = Guard.AgainstNull(databaseContextService);
         _queryMapper = Guard.AgainstNull(queryMapper);
         _queryFactory = Guard.AgainstNull(queryFactory);
-        _eventTypeStore = Guard.AgainstNull(eventTypeStore);
+        _eventTypeRepository = Guard.AgainstNull(eventTypeRepository);
     }
 
     public async Task RemoveAsync(Guid id)
@@ -35,7 +35,7 @@ public class PrimitiveEventRepository : IPrimitiveEventRepository
 
         foreach (var primitiveEvent in primitiveEvents)
         {
-            var eventTypeId = await _eventTypeStore.GetIdAsync(databaseContext, primitiveEvent.EventType).ConfigureAwait(false);
+            var eventTypeId = await _eventTypeRepository.GetIdAsync(databaseContext, primitiveEvent.EventType).ConfigureAwait(false);
 
             result = await databaseContext.GetScalarAsync<long>(_queryFactory.SaveEvent(primitiveEvent, eventTypeId)).ConfigureAwait(false);
         }

@@ -9,16 +9,16 @@ namespace Shuttle.Recall.Sql.Storage;
 public class PrimitiveEventQuery : IPrimitiveEventQuery
 {
     private readonly IDatabaseContextService _databaseContextService;
-    private readonly IEventTypeStore _eventTypeStore;
+    private readonly IEventTypeRepository _eventTypeRepository;
     private readonly IPrimitiveEventQueryFactory _queryFactory;
     private readonly IQueryMapper _queryMapper;
 
-    public PrimitiveEventQuery(IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeStore eventTypeStore)
+    public PrimitiveEventQuery(IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeRepository eventTypeRepository)
     {
         _databaseContextService = Guard.AgainstNull(databaseContextService);
         _queryMapper = Guard.AgainstNull(queryMapper);
         _queryFactory = Guard.AgainstNull(queryFactory);
-        _eventTypeStore = Guard.AgainstNull(eventTypeStore);
+        _eventTypeRepository = Guard.AgainstNull(eventTypeRepository);
     }
 
     public async Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEventSpecification specification)
@@ -29,7 +29,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
 
         foreach (var eventType in specification.EventTypes)
         {
-            eventTypeIds.Add(await _eventTypeStore.GetIdAsync(databaseContext, Guard.AgainstNullOrEmptyString(eventType.FullName)));
+            eventTypeIds.Add(await _eventTypeRepository.GetIdAsync(databaseContext, Guard.AgainstNullOrEmptyString(eventType.FullName)));
         }
 
         return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(databaseContext, _queryFactory.Search(specification, eventTypeIds)).ConfigureAwait(false);

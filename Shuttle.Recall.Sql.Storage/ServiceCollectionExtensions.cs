@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data.ThreadDatabaseContextScope;
+using Shuttle.Recall.Sql.Storage.DataAccess;
+using Shuttle.Recall.Sql.Storage.SqlServer;
 
 namespace Shuttle.Recall.Sql.Storage;
 
@@ -11,26 +13,25 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSqlEventStorage(this IServiceCollection services, Action<SqlStorageBuilder>? builder = null)
     {
-        var dataAccessBuilder = new SqlStorageBuilder(Guard.AgainstNull(services));
+        var sqlStorageBuilder = new SqlStorageBuilder(Guard.AgainstNull(services));
 
-        builder?.Invoke(dataAccessBuilder);
+        builder?.Invoke(sqlStorageBuilder);
 
         services.TryAddSingleton<IValidateOptions<SqlStorageOptions>, SqlStorageOptionsValidator>();
 
         services.AddOptions<SqlStorageOptions>().Configure(options =>
         {
-            options.ConnectionStringName = dataAccessBuilder.Options.ConnectionStringName;
+            options.ConnectionStringName = sqlStorageBuilder.Options.ConnectionStringName;
         });
 
-        services.AddSingleton<IScriptProvider, ScriptProvider>();
         services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
         services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
         services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
         services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
-        services.AddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
-        services.AddSingleton<IKeyStore, KeyStore>();
-        services.AddSingleton<IEventTypeStore, EventTypeStore>();
-        services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
+        services.AddSingleton<IIdKeyQueryFactory, IdKeyQueryFactory>();
+        services.AddSingleton<IIdKeyRepository, IdKeyRepository>();
+        services.AddSingleton<IEventTypeRepository, EventTypeRepository>();
+        services.AddSingleton<IEventTypeQueryFactory, EventTypeQueryFactory>();
         services.AddThreadDatabaseContextScope();
 
         services.AddHostedService<EventStoreHostedService>();

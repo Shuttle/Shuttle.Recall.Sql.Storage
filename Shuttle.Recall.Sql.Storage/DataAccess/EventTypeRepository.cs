@@ -7,13 +7,13 @@ using Shuttle.Core.Data;
 
 namespace Shuttle.Recall.Sql.Storage;
 
-public class EventTypeStore : IEventTypeStore
+public class EventTypeRepository : IEventTypeRepository
 {
     private readonly Dictionary<string, Guid> _cache = new();
     private readonly SemaphoreSlim _lock = new(1,1);
-    private readonly IEventTypeStoreQueryFactory _queryFactory;
+    private readonly IEventTypeQueryFactory _queryFactory;
 
-    public EventTypeStore(IEventTypeStoreQueryFactory queryFactory)
+    public EventTypeRepository(IEventTypeQueryFactory queryFactory)
     {
         _queryFactory = Guard.AgainstNull(queryFactory);
     }
