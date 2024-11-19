@@ -28,6 +28,7 @@ public class SqlConfiguration
             .AddSqlEventStorage(builder =>
             {
                 builder.Options.ConnectionStringName = "Shuttle";
+                builder.Options.Schema = "StorageFixture";
             });
     }
 

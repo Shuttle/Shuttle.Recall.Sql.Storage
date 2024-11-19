@@ -16,7 +16,7 @@ public class IdKeyQueryFactory : IIdKeyQueryFactory
 
     public IQuery Get(string key)
     {
-        return new Query($"select Id from [{_sqlStorageOptions.Schema}].IdKey where [Key] = @Key")
+        return new Query($"select Id from [{_sqlStorageOptions.Schema}].IdKey where [UniqueKey] = @UniqueKey")
             .AddParameter(Columns.UniqueKey, key);
     }
 
@@ -66,7 +66,7 @@ update
 set
 	[UniqueKey] = @Rekey
 where
-	[UniqueKey] = @Key
+	[UniqueKey] = @UniqueKey
 ")
                 .AddParameter(Columns.UniqueKey, key)
                 .AddParameter(Columns.Rekey, rekey);

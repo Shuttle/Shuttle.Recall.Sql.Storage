@@ -18,12 +18,31 @@ public class PrimitiveEventQueryFactory : IPrimitiveEventQueryFactory
 
     public IQuery RemoveEventStream(Guid id)
     {
-        return new Query($"delete from [{_sqlStorageOptions.Schema}].[EventStore] where Id = @Id").AddParameter(Columns.Id, id);
+        return new Query($"delete from [{_sqlStorageOptions.Schema}].[PrimitiveEvent] where Id = @Id").AddParameter(Columns.Id, id);
     }
 
     public IQuery GetEventStream(Guid id)
     {
-        return new Query($"select max(SequenceNumber) from [{_sqlStorageOptions.Schema}].[EventStore] where Id = @Id").AddParameter(Columns.Id, id);
+        return new Query($@"
+select
+	es.[Id],
+	es.[Version],
+	es.[CorrelationId],
+	et.[TypeName] EventType,
+	es.[EventEnvelope],
+	es.[EventId],
+	es.[SequenceNumber],
+	es.[DateRegistered]
+from 
+	[{_sqlStorageOptions.Schema}].[PrimitiveEvent] es
+inner join
+	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
+where
+	es.Id = @Id
+order by
+	[Version]
+")
+            .AddParameter(Columns.Id, id);
     }
 
     public IQuery Search(PrimitiveEventSpecification specification, IEnumerable<Guid> eventTypeIds)
@@ -42,7 +61,7 @@ select top {(specification.Count > 0 ? specification.Count : 1)}
 	es.[SequenceNumber],
 	es.[DateRegistered]
 from 
-	[{_sqlStorageOptions.Schema}].[EventStore] es
+	[{_sqlStorageOptions.Schema}].[PrimitiveEvent] es
 inner join
 	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
 where 
@@ -66,7 +85,7 @@ order by
     public IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId)
     {
         return new Query($@"
-insert into [{_sqlStorageOptions.Schema}].[EventStore] 
+insert into [{_sqlStorageOptions.Schema}].[PrimitiveEvent] 
 (
 	[Id],
 	[Version],
@@ -100,25 +119,6 @@ select cast(scope_identity() as bigint);
 
     public IQuery GetSequenceNumber(Guid id)
     {
-        return new Query($@"
-select
-	es.[Id],
-	es.[Version],
-	es.[CorrelationId],
-	et.[TypeName] EventType,
-	es.[EventEnvelope],
-	es.[EventId],
-	es.[SequenceNumber],
-	es.[DateRegistered]
-from 
-	[{_sqlStorageOptions.Schema}].[EventStore] es
-inner join
-	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
-where
-	es.Id = @Id
-order by
-	[Version]
-")
-            .AddParameter(Columns.Id, id);
+        return new Query($"select max(SequenceNumber) from [{_sqlStorageOptions.Schema}].[PrimitiveEvent] where Id = @Id").AddParameter(Columns.Id, id);
     }
 }

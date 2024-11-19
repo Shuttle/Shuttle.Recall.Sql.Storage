@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<SqlStorageOptions>().Configure(options =>
         {
             options.ConnectionStringName = sqlStorageBuilder.Options.ConnectionStringName;
+            options.Schema = sqlStorageBuilder.Options.Schema;
         });
 
         services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
