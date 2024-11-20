@@ -70,8 +70,13 @@ public class PrimitiveEventSpecification
 
     public PrimitiveEventSpecification WithRange(long sequenceNumberStart, int count)
     {
+        if (count < 1)
+        {
+            throw new ArgumentException(Resources.CountMustBeGreaterThanZero);
+        }
+
         SequenceNumberStart = sequenceNumberStart;
-        SequenceNumberEnd = sequenceNumberStart + count;
+        SequenceNumberEnd = sequenceNumberStart + (count - 1);
 
         return this;
     }

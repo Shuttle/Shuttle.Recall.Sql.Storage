@@ -68,5 +68,14 @@ namespace Shuttle.Recall.Sql.Storage {
                 return ResourceManager.GetString("ConnectionStringException", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Count must be greater that zero..
+        /// </summary>
+        public static string CountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("CountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
     }
 }
