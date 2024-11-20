@@ -9,13 +9,12 @@ public class PrimitiveEventSpecification
 {
     private readonly List<Type> _eventTypes = new();
     private readonly List<Guid> _ids = new();
-    public int Count { get; private set; }
 
     public IEnumerable<Type> EventTypes => _eventTypes.AsReadOnly();
 
     public IEnumerable<Guid> Ids => _ids.AsReadOnly();
     public long SequenceNumberStart { get; private set; }
-    public int? ManagedThreadId { get; private set; }
+    public long SequenceNumberEnd { get; private set; }
     public int MaximumRows { get; private set; }
 
     public PrimitiveEventSpecification AddEventType<T>()
@@ -72,14 +71,7 @@ public class PrimitiveEventSpecification
     public PrimitiveEventSpecification WithRange(long sequenceNumberStart, int count)
     {
         SequenceNumberStart = sequenceNumberStart;
-        Count = count;
-
-        return this;
-    }
-
-    public PrimitiveEventSpecification WithManagedThreadId(int managedThreadId)
-    {
-        ManagedThreadId = managedThreadId;
+        SequenceNumberEnd = sequenceNumberStart + count;
 
         return this;
     }

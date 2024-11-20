@@ -51,7 +51,7 @@ order by
 
         return
             new Query($@"
-select top {(specification.Count > 0 ? specification.Count : 1)}
+select top {(specification.MaximumRows > 0 ? specification.MaximumRows : 1)}
 	es.[Id],
 	es.[Version],
 	es.[CorrelationId],
@@ -65,7 +65,17 @@ from
 inner join
 	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
 where 
-	es.SequenceNumber >= @FromSequenceNumber
+(
+    @SequenceNumberStart = 0
+    or
+	es.SequenceNumber >= @SequenceNumberStart
+)
+and
+(
+    @SequenceNumberEnd = 0
+    or
+    es.SequenceNumber <= @SequenceNumberEnd
+)
 {(
     !eventTypeIds.Any()
     ? string.Empty
@@ -79,7 +89,8 @@ where
 order by
 	es.SequenceNumber
 ")
-                .AddParameter(Columns.FromSequenceNumber, specification.SequenceNumberStart);
+                .AddParameter(Columns.SequenceNumberStart, specification.SequenceNumberStart)
+                .AddParameter(Columns.SequenceNumberEnd, specification.SequenceNumberEnd);
     }
 
     public IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId)
