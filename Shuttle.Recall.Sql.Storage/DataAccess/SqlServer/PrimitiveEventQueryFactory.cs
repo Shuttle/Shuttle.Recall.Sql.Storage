@@ -70,12 +70,6 @@ where
     or
 	es.SequenceNumber >= @SequenceNumberStart
 )
-and
-(
-    @SequenceNumberEnd = 0
-    or
-    es.SequenceNumber <= @SequenceNumberEnd
-)
 {(
     !eventTypeIds.Any()
     ? string.Empty
@@ -89,8 +83,7 @@ and
 order by
 	es.SequenceNumber
 ")
-                .AddParameter(Columns.SequenceNumberStart, specification.SequenceNumberStart)
-                .AddParameter(Columns.SequenceNumberEnd, specification.SequenceNumberEnd);
+                .AddParameter(Columns.SequenceNumberStart, specification.SequenceNumberStart);
     }
 
     public IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId)

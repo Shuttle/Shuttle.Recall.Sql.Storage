@@ -120,9 +120,6 @@
   <data name="ConnectionStringOptionException" xml:space="preserve">
     <value>No 'SqlStorageOptions.ConnectionStringName' has been specified.</value>
   </data>
-  <data name="CountMustBeGreaterThanZero" xml:space="preserve">
-    <value>Count must be greater that zero.</value>
-  </data>
   <data name="SchemaOptionException" xml:space="preserve">
     <value>No 'SqlStorageOptions.Schema' has been specified.</value>
   </data>

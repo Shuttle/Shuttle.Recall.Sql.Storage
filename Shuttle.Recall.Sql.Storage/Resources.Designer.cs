@@ -70,15 +70,6 @@ namespace Shuttle.Recall.Sql.Storage {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count must be greater that zero..
-        /// </summary>
-        public static string CountMustBeGreaterThanZero {
-            get {
-                return ResourceManager.GetString("CountMustBeGreaterThanZero", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No &apos;SqlStorageOptions.Schema&apos; has been specified..
         /// </summary>
         public static string SchemaOptionException {
