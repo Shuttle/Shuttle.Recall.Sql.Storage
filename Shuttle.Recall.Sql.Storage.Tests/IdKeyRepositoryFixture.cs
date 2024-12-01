@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using Shuttle.Core.Data;
 using Shuttle.Recall.Sql.Storage.DataAccess;
@@ -21,10 +22,16 @@ public class IdKeyRepositoryFixture
 
         var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
         var repository = serviceProvider.GetRequiredService<IIdKeyRepository>();
+        var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
 
         await using (var databaseContext = databaseContextFactory.Create())
         {
-            await databaseContext.ExecuteAsync(new Query("delete from [dbo].[KeyStore] where Id = @Id").AddParameter(Columns.Id, Id));
+            await databaseContext.ExecuteAsync(new Query(@$"
+IF OBJECT_ID ('{options.Schema}.IdKey', 'U') IS NOT NULL 
+BEGIN
+    DELETE FROM [{options.Schema}].[IdKey] WHERE Id = @Id
+END
+").AddParameter(Columns.Id, Id));
         }
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 using Shuttle.Core.Data.Logging;
 
@@ -13,12 +14,16 @@ public class SqlConfiguration
 {
     public static IServiceCollection GetServiceCollection(IServiceCollection? serviceCollection = null)
     {
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
         return (serviceCollection ?? new ServiceCollection())
             .AddSingleton<IConfiguration>(new ConfigurationBuilder().Build())
             .AddDataAccess(builder =>
             {
-                builder.AddConnectionString("Shuttle", "Microsoft.Data.SqlClient", "server=.;database=Shuttle;user id=sa;password=Pass!000;TrustServerCertificate=true");
-                builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "Shuttle";
+                builder.AddConnectionString("RecallFixtureStorage", "Microsoft.Data.SqlClient", Guard.AgainstNullOrEmptyString(configuration.GetConnectionString("RecallFixtureStorage")));
+                builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "RecallFixtureStorage";
             })
             .AddDataAccessLogging(builder =>
             {
@@ -27,8 +32,7 @@ public class SqlConfiguration
             })
             .AddSqlEventStorage(builder =>
             {
-                builder.Options.ConnectionStringName = "Shuttle";
-                builder.Options.Schema = "StorageFixture";
+                configuration.GetSection(SqlStorageOptions.SectionName).Bind(builder.Options);
             });
     }
 
