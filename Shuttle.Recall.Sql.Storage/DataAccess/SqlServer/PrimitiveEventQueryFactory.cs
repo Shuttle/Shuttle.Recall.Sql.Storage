@@ -24,7 +24,7 @@ public class PrimitiveEventQueryFactory : IPrimitiveEventQueryFactory
     public IQuery GetEventStream(Guid id)
     {
         return new Query($@"
-select
+SELECT
 	es.[Id],
 	es.[Version],
 	es.[CorrelationId],
@@ -33,13 +33,13 @@ select
 	es.[EventId],
 	es.[SequenceNumber],
 	es.[DateRegistered]
-from 
+FROM 
 	[{_sqlStorageOptions.Schema}].[PrimitiveEvent] es
-inner join
-	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
-where
+INNER JOIN
+	[{_sqlStorageOptions.Schema}].[EventType] et ON et.Id = es.EventTypeId
+WHERE
 	es.Id = @Id
-order by
+ORDER BY
 	[Version]
 ")
             .AddParameter(Columns.Id, id);
@@ -51,7 +51,7 @@ order by
 
         return
             new Query($@"
-select top {(specification.MaximumRows > 0 ? specification.MaximumRows : 1)}
+SELECT {(specification.MaximumRows > 0 ? $"TOP {specification.MaximumRows}" : string.Empty)}
 	es.[Id],
 	es.[Version],
 	es.[CorrelationId],
@@ -60,36 +60,82 @@ select top {(specification.MaximumRows > 0 ? specification.MaximumRows : 1)}
 	es.[EventId],
 	es.[SequenceNumber],
 	es.[DateRegistered]
-from 
+FROM 
 	[{_sqlStorageOptions.Schema}].[PrimitiveEvent] es
-inner join
-	[{_sqlStorageOptions.Schema}].[EventType] et on et.Id = es.EventTypeId
-where 
+INNER JOIN
+	[{_sqlStorageOptions.Schema}].[EventType] et ON et.Id = es.EventTypeId
+WHERE 
 (
     @SequenceNumberStart = 0
-    or
+    OR
 	es.SequenceNumber >= @SequenceNumberStart
+)
+AND
+(
+    @SequenceNumberEnd = 0
+    OR
+	es.SequenceNumber <= @SequenceNumberEnd
 )
 {(
     !eventTypeIds.Any()
-    ? string.Empty
-    : $"and EventTypeId in ({string.Join(",", eventTypeIds.Select(id => string.Concat("'", id, "'")).ToArray())})"
+        ? string.Empty
+        : $"AND EventTypeId IN ({string.Join(",", eventTypeIds.Select(id => string.Concat("'", id, "'")).ToArray())})"
 )}
 {(
-    !specification.Ids.Any()
+    !specification.HasIds
         ? string.Empty
-        : $"and Id in ({string.Join(",", specification.Ids.Select(id => string.Concat("'", id, "'")).ToArray())})"
+        : $"AND Id IN ({string.Join(",", specification.Ids.Select(id => string.Concat("'", id, "'")).ToArray())})"
 )}
-order by
+{(
+    !specification.HasSequenceNumbers
+        ? string.Empty
+        : $"AND SequenceNumber IN ({string.Join(",", specification.SequenceNumbers)})"
+)}
+ORDER BY
 	es.SequenceNumber
 ")
-                .AddParameter(Columns.SequenceNumberStart, specification.SequenceNumberStart);
+                .AddParameter(Columns.SequenceNumberStart, specification.SequenceNumberStart)
+                .AddParameter(Columns.SequenceNumberEnd, specification.SequenceNumberEnd);
+    }
+
+    public IQuery GetUncommittedSequenceNumberStart()
+    {
+        return new Query($@"
+UPDATE
+    [{_sqlStorageOptions.Schema}].[PrimitiveEvent]
+SET
+    DateCommitted = GETUTCDATE()
+WHERE
+    DateCommitted IS NULL
+
+SELECT
+    MIN(SequenceNumber)
+FROM
+    [{_sqlStorageOptions.Schema}].[PrimitiveEvent] (NOLOCK)
+WHERE
+    DateCommitted IS NULL
+");
+    }
+
+    public IQuery Commit(Guid id)
+    {
+        return new Query($@"
+UPDATE
+    [{_sqlStorageOptions.Schema}].[PrimitiveEvent]
+SET
+    DateCommitted = GETUTCDATE()
+WHERE
+    Id = @Id
+AND
+    DateCommitted IS NULL
+")
+            .AddParameter(Columns.Id, id);
     }
 
     public IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId)
     {
         return new Query($@"
-insert into [{_sqlStorageOptions.Schema}].[PrimitiveEvent] 
+INSERT INTO [{_sqlStorageOptions.Schema}].[PrimitiveEvent] 
 (
 	[Id],
 	[Version],
@@ -97,9 +143,9 @@ insert into [{_sqlStorageOptions.Schema}].[PrimitiveEvent]
 	[EventTypeId],
 	[EventEnvelope],
 	[EventId],
-	[DateRegistered]	
+    [DateRegistered]
 )
-values
+VALUES
 (
 	@Id,
 	@Version,
@@ -107,15 +153,14 @@ values
 	@EventTypeId,
 	@EventEnvelope,
 	@EventId,
-	@DateRegistered
+    GETUTCDATE()
 );
 
-select cast(scope_identity() as bigint);
+SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
 ")
             .AddParameter(Columns.Id, primitiveEvent.Id)
             .AddParameter(Columns.Version, primitiveEvent.Version)
             .AddParameter(Columns.CorrelationId, primitiveEvent.CorrelationId)
-            .AddParameter(Columns.DateRegistered, primitiveEvent.DateRegistered)
             .AddParameter(Columns.EventEnvelope, primitiveEvent.EventEnvelope)
             .AddParameter(Columns.EventId, primitiveEvent.EventId)
             .AddParameter(Columns.EventTypeId, eventTypeId);
@@ -123,6 +168,6 @@ select cast(scope_identity() as bigint);
 
     public IQuery GetSequenceNumber(Guid id)
     {
-        return new Query($"select max(SequenceNumber) from [{_sqlStorageOptions.Schema}].[PrimitiveEvent] where Id = @Id").AddParameter(Columns.Id, id);
+        return new Query($"SELECT MAX(SequenceNumber) FROM [{_sqlStorageOptions.Schema}].[PrimitiveEvent] WHERE Id = @Id").AddParameter(Columns.Id, id);
     }
 }

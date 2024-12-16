@@ -9,12 +9,18 @@ public class PrimitiveEventSpecification
 {
     private readonly List<Type> _eventTypes = new();
     private readonly List<Guid> _ids = new();
+    private List<long> _sequenceNumbers = new();
 
     public IEnumerable<Type> EventTypes => _eventTypes.AsReadOnly();
+    public bool HasEventTypes => _eventTypes.Any();
 
     public IEnumerable<Guid> Ids => _ids.AsReadOnly();
+    public bool HasIds => _ids.Any();
     public long SequenceNumberStart { get; private set; }
     public int MaximumRows { get; private set; }
+    public long SequenceNumberEnd { get; private set; }
+    public IEnumerable<long> SequenceNumbers => _sequenceNumbers;
+    public bool HasSequenceNumbers => _sequenceNumbers.Any();
 
     public PrimitiveEventSpecification AddEventType<T>()
     {
@@ -57,12 +63,46 @@ public class PrimitiveEventSpecification
         return this;
     }
 
+    public PrimitiveEventSpecification AddSequenceNumber(long sequenceNumber)
+    {
+        if (!_sequenceNumbers.Contains(sequenceNumber))
+        {
+            _sequenceNumbers.Add(sequenceNumber);
+        }
+
+        return this;
+    }
+
+    public PrimitiveEventSpecification AddSequenceNumbers(IEnumerable<long> sequenceNumbers)
+    {
+        foreach (var sequenceNumber in sequenceNumbers)
+        {
+            AddSequenceNumber(sequenceNumber);
+        }
+
+        return this;
+    }
+
+    public PrimitiveEventSpecification WithSequenceNumbers(IEnumerable<long> sequenceNumbers)
+    {
+        _sequenceNumbers = [..sequenceNumbers];
+
+        return this;
+    }
+
     public PrimitiveEventSpecification AddIds(IEnumerable<Guid> ids)
     {
         foreach (var type in ids ?? Enumerable.Empty<Guid>())
         {
             AddId(type);
         }
+
+        return this;
+    }
+
+    public PrimitiveEventSpecification WithSequenceNumberEnd(long sequenceNumberEnd)
+    {
+        SequenceNumberEnd = sequenceNumberEnd;
 
         return this;
     }

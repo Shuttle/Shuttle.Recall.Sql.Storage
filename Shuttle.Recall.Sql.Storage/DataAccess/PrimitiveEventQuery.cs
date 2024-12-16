@@ -32,6 +32,13 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
             eventTypeIds.Add(await _eventTypeRepository.GetIdAsync(databaseContext, Guard.AgainstNullOrEmptyString(eventType.FullName)));
         }
 
-        return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(databaseContext, _queryFactory.Search(specification, eventTypeIds)).ConfigureAwait(false);
+        var sequenceNumberEnd = await databaseContext.GetScalarAsync<long?>(_queryFactory.GetUncommittedSequenceNumberStart());
+
+        if (sequenceNumberEnd.HasValue)
+        {
+            specification.WithSequenceNumberEnd(sequenceNumberEnd.Value - 1);
+        }
+
+        return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(_queryFactory.Search(specification, eventTypeIds)).ConfigureAwait(false);
     }
 }

@@ -11,6 +11,8 @@ public class DatabaseContextObserver :
     IPipelineObserver<OnAfterGetStreamEvents>,
     IPipelineObserver<OnBeforeSavePrimitiveEvents>,
     IPipelineObserver<OnAfterSavePrimitiveEvents>,
+    IPipelineObserver<OnBeforeSaveEventStreamCompleted>,
+    IPipelineObserver<OnAfterSaveEventStreamCompleted>,
     IPipelineObserver<OnBeforeRemoveEventStream>,
     IPipelineObserver<OnAfterRemoveEventStream>
 {
@@ -42,6 +44,11 @@ public class DatabaseContextObserver :
         await DisposeDatabaseContextAsync(pipelineContext);
     }
 
+    public async Task ExecuteAsync(IPipelineContext<OnAfterSaveEventStreamCompleted> pipelineContext)
+    {
+        await DisposeDatabaseContextAsync(pipelineContext);
+    }
+
     public async Task ExecuteAsync(IPipelineContext<OnBeforeGetStreamEvents> pipelineContext)
     {
         await CreateDatabaseContextAsync(pipelineContext);
@@ -53,6 +60,11 @@ public class DatabaseContextObserver :
     }
 
     public async Task ExecuteAsync(IPipelineContext<OnBeforeSavePrimitiveEvents> pipelineContext)
+    {
+        await CreateDatabaseContextAsync(pipelineContext);
+    }
+
+    public async Task ExecuteAsync(IPipelineContext<OnBeforeSaveEventStreamCompleted> pipelineContext)
     {
         await CreateDatabaseContextAsync(pipelineContext);
     }

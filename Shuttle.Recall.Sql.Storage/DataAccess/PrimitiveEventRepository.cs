@@ -46,7 +46,7 @@ public class PrimitiveEventRepository : IPrimitiveEventRepository
 
     public async Task<IEnumerable<PrimitiveEvent>> GetAsync(Guid id)
     {
-        return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(_databaseContextService.Active, _queryFactory.GetEventStream(id)).ConfigureAwait(false);
+        return await _queryMapper.MapObjectsAsync<PrimitiveEvent>(_queryFactory.GetEventStream(id)).ConfigureAwait(false);
     }
 
     public async ValueTask<long> GetSequenceNumberAsync(Guid id)

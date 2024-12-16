@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Data;
 using Shuttle.Recall.Tests;
@@ -19,12 +19,15 @@ public class StorageFixture : RecallFixture
         var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
         var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
 
-        await using (var databaseContext = databaseContextFactory.Create())
-        {
-            await databaseContext.ExecuteAsync(new Query($"delete from [{options.Schema}].PrimitiveEvent where Id = @Id").AddParameter(Columns.Id, OrderId));
-            await databaseContext.ExecuteAsync(new Query($"delete from [{options.Schema}].PrimitiveEvent where Id = @Id").AddParameter(Columns.Id, OrderProcessId));
-        }
+        var fixtureConfiguration = new FixtureConfiguration(services)
+            .WithRemoveIdsCallback(async ids =>
+            {
+                await using (var databaseContext = databaseContextFactory.Create())
+                {
+                    await databaseContext.ExecuteAsync(new Query($"DELETE FROM [{options.Schema}].[PrimitiveEvent] WHERE Id IN ({string.Join(',', ids.Select(id => $"'{id}'"))})"));
+                }
+            });
 
-        await ExerciseStorageAsync(services);
+        await ExerciseStorageAsync(fixtureConfiguration);
     }
 }

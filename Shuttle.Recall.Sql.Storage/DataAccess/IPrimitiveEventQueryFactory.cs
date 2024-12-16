@@ -11,4 +11,6 @@ public interface IPrimitiveEventQueryFactory
     IQuery RemoveEventStream(Guid id);
     IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId);
     IQuery Search(PrimitiveEventSpecification specification, IEnumerable<Guid> eventTypeIds);
+    IQuery GetUncommittedSequenceNumberStart();
+    IQuery Commit(Guid id);
 }
