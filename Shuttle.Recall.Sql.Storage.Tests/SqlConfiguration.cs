@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 using Shuttle.Core.Data.Logging;
+using Shuttle.Recall.Logging;
 
 namespace Shuttle.Recall.Sql.Storage.Tests;
 

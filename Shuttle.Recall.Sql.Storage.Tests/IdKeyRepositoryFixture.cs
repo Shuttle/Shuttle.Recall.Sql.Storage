@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using Shuttle.Core.Data;
 using Shuttle.Recall.Sql.Storage.DataAccess;
+using Shuttle.Recall.Tests;
 
 namespace Shuttle.Recall.Sql.Storage.Tests;
 
@@ -16,13 +17,17 @@ public class IdKeyRepositoryFixture
     [Test]
     public async Task Should_be_able_to_use_repository_async()
     {
-        var services = SqlConfiguration.GetServiceCollection();
+        var services = SqlConfiguration.GetServiceCollection()
+                .AddEventStore()
+                .ConfigureLogging(nameof(IdKeyRepositoryFixture));
 
         var serviceProvider = services.BuildServiceProvider();
 
         var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
         var repository = serviceProvider.GetRequiredService<IIdKeyRepository>();
         var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
+
+        await serviceProvider.StartHostedServicesAsync().ConfigureAwait(false);
 
         await using (var databaseContext = databaseContextFactory.Create())
         {

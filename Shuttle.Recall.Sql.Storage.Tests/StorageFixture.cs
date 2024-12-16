@@ -15,16 +15,20 @@ public class StorageFixture : RecallFixture
     {
         var services = SqlConfiguration.GetServiceCollection();
 
-        var serviceProvider = services.BuildServiceProvider();
-        var databaseContextFactory = serviceProvider.GetRequiredService<IDatabaseContextFactory>();
-        var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
-
         var fixtureConfiguration = new FixtureConfiguration(services)
-            .WithRemoveIdsCallback(async ids =>
+            .WithRemoveIdsCallback(async (serviceProvider, ids) =>
             {
-                await using (var databaseContext = databaseContextFactory.Create())
+                var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
+
+                await using (var databaseContext = serviceProvider.GetRequiredService<IDatabaseContextFactory>().Create())
                 {
-                    await databaseContext.ExecuteAsync(new Query($"DELETE FROM [{options.Schema}].[PrimitiveEvent] WHERE Id IN ({string.Join(',', ids.Select(id => $"'{id}'"))})"));
+                    await databaseContext.ExecuteAsync(new Query($@"
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{options.Schema}].[PrimitiveEvent]') AND type in (N'U'))
+BEGIN
+    DELETE FROM [{options.Schema}].[PrimitiveEvent] WHERE Id IN ({string.Join(',', ids.Select(id => $"'{id}'"))})
+END
+")
+                    );
                 }
             });
 
