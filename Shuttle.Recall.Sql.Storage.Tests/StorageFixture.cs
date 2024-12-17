@@ -16,7 +16,7 @@ public class StorageFixture : RecallFixture
         var services = SqlConfiguration.GetServiceCollection();
 
         var fixtureConfiguration = new FixtureConfiguration(services)
-            .WithRemoveIdsCallback(async (serviceProvider, ids) =>
+            .WithStarting(async serviceProvider =>
             {
                 var options = serviceProvider.GetRequiredService<IOptions<SqlStorageOptions>>().Value;
 
@@ -25,7 +25,7 @@ public class StorageFixture : RecallFixture
                     await databaseContext.ExecuteAsync(new Query($@"
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{options.Schema}].[PrimitiveEvent]') AND type in (N'U'))
 BEGIN
-    DELETE FROM [{options.Schema}].[PrimitiveEvent] WHERE Id IN ({string.Join(',', ids.Select(id => $"'{id}'"))})
+    DELETE FROM [{options.Schema}].[PrimitiveEvent] WHERE Id IN ({string.Join(',', KnownAggregateIds.Select(id => $"'{id}'"))})
 END
 ")
                     );
