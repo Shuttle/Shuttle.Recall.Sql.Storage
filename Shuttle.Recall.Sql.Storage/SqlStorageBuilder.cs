@@ -22,8 +22,8 @@ public class SqlStorageBuilder
 
     public SqlStorageBuilder UseSqlServer()
     {
-        Services.AddSingleton<IPrimitiveEventQueryFactory, SqlServer.PrimitiveEventQueryFactory>();
-        Services.AddSingleton<IEventTypeQueryFactory, SqlServer.EventTypeQueryFactory>();
+        Services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
+        Services.AddSingleton<IEventTypeQueryFactory, EventTypeQueryFactory>();
 
         return this;
     }

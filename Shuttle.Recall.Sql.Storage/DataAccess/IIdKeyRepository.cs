@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Shuttle.Recall.Sql.Storage.DataAccess;
+namespace Shuttle.Recall.Sql.Storage;
 
 public interface IIdKeyRepository
 {

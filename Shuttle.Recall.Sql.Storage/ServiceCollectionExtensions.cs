@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data.ThreadDatabaseContextScope;
-using Shuttle.Recall.Sql.Storage.DataAccess;
-using Shuttle.Recall.Sql.Storage.SqlServer;
 
 namespace Shuttle.Recall.Sql.Storage;
 

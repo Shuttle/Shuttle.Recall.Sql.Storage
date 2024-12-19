@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage.DataAccess;
+namespace Shuttle.Recall.Sql.Storage;
 
 public class IdKeyRepository : IIdKeyRepository
 {

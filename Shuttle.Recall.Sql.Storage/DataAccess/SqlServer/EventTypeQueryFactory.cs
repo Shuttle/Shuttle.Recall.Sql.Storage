@@ -2,7 +2,7 @@
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage.SqlServer;
+namespace Shuttle.Recall.Sql.Storage;
 
 public class EventTypeQueryFactory : IEventTypeQueryFactory
 {
