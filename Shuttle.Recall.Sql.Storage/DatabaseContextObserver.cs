@@ -17,7 +17,6 @@ public class DatabaseContextObserver :
     IPipelineObserver<OnAfterRemoveEventStream>
 {
     private const string DatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DatabaseContext";
-    private const string DisposeDatabaseContextStateKey = "Shuttle.Recall.Sql.Storage.DatabaseContextObserver:DisposeDatabaseContext";
     private readonly IDatabaseContextFactory _databaseContextFactory;
     private readonly IDatabaseContextService _databaseContextService;
     private readonly SqlStorageOptions _sqlStorageOptions;
@@ -39,12 +38,12 @@ public class DatabaseContextObserver :
         await DisposeDatabaseContextAsync(pipelineContext);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnAfterSavePrimitiveEvents> pipelineContext)
+    public async Task ExecuteAsync(IPipelineContext<OnAfterSaveEventStreamCompleted> pipelineContext)
     {
         await DisposeDatabaseContextAsync(pipelineContext);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnAfterSaveEventStreamCompleted> pipelineContext)
+    public async Task ExecuteAsync(IPipelineContext<OnAfterSavePrimitiveEvents> pipelineContext)
     {
         await DisposeDatabaseContextAsync(pipelineContext);
     }
@@ -59,40 +58,30 @@ public class DatabaseContextObserver :
         await CreateDatabaseContextAsync(pipelineContext);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnBeforeSavePrimitiveEvents> pipelineContext)
+    public async Task ExecuteAsync(IPipelineContext<OnBeforeSaveEventStreamCompleted> pipelineContext)
     {
         await CreateDatabaseContextAsync(pipelineContext);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnBeforeSaveEventStreamCompleted> pipelineContext)
+    public async Task ExecuteAsync(IPipelineContext<OnBeforeSavePrimitiveEvents> pipelineContext)
     {
         await CreateDatabaseContextAsync(pipelineContext);
     }
 
     private async Task CreateDatabaseContextAsync(IPipelineContext pipelineContext)
     {
-        var hasDatabaseContext = _databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName);
-
-        Guard.AgainstNull(pipelineContext).Pipeline.State.Add(DisposeDatabaseContextStateKey, !hasDatabaseContext);
-
-        if (!hasDatabaseContext)
-        {
-            pipelineContext.Pipeline.State.Add(DatabaseContextStateKey, _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName));
-        }
+        pipelineContext.Pipeline.State.Replace(DatabaseContextStateKey,
+            !_databaseContextService.Contains(_sqlStorageOptions.ConnectionStringName)
+                ? _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName)
+                : null);
 
         await Task.CompletedTask;
     }
 
     private async Task DisposeDatabaseContextAsync(IPipelineContext pipelineContext)
     {
-        if (Guard.AgainstNull(pipelineContext).Pipeline.State.Get<bool>(DisposeDatabaseContextStateKey))
-        {
-            await Guard.AgainstNull(pipelineContext.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey)).TryDisposeAsync();
-        }
+        await (pipelineContext.Pipeline.State.Get<IDatabaseContext>(DatabaseContextStateKey)?.TryDisposeAsync() ?? Task.CompletedTask);
 
         pipelineContext.Pipeline.State.Remove(DatabaseContextStateKey);
-        pipelineContext.Pipeline.State.Remove(DisposeDatabaseContextStateKey);
-
-        await Task.CompletedTask;
     }
 }

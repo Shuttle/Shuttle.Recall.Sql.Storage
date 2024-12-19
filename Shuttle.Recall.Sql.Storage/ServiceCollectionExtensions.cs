@@ -21,6 +21,8 @@ public static class ServiceCollectionExtensions
         {
             options.ConnectionStringName = sqlStorageBuilder.Options.ConnectionStringName;
             options.Schema = sqlStorageBuilder.Options.Schema;
+            options.ConfigureDatabase = sqlStorageBuilder.Options.ConfigureDatabase;
+            options.UncommittedTolerance = sqlStorageBuilder.Options.UncommittedTolerance;
         });
 
         services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();

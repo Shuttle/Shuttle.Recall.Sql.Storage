@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 
@@ -12,9 +13,11 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
     private readonly IEventTypeRepository _eventTypeRepository;
     private readonly IPrimitiveEventQueryFactory _queryFactory;
     private readonly IQueryMapper _queryMapper;
+    private readonly double _uncommittedToleranceSeconds;
 
-    public PrimitiveEventQuery(IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeRepository eventTypeRepository)
+    public PrimitiveEventQuery(IOptions<SqlStorageOptions> sqlStorageOptions, IDatabaseContextService databaseContextService, IQueryMapper queryMapper, IPrimitiveEventQueryFactory queryFactory, IEventTypeRepository eventTypeRepository)
     {
+        _uncommittedToleranceSeconds = Guard.AgainstNull(Guard.AgainstNull(sqlStorageOptions).Value).UncommittedTolerance.TotalSeconds;
         _databaseContextService = Guard.AgainstNull(databaseContextService);
         _queryMapper = Guard.AgainstNull(queryMapper);
         _queryFactory = Guard.AgainstNull(queryFactory);
@@ -32,7 +35,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
             eventTypeIds.Add(await _eventTypeRepository.GetIdAsync(databaseContext, Guard.AgainstNullOrEmptyString(eventType.FullName)));
         }
 
-        var sequenceNumberEnd = await databaseContext.GetScalarAsync<long?>(_queryFactory.GetUncommittedSequenceNumberStart());
+        var sequenceNumberEnd = await databaseContext.GetScalarAsync<long?>(_queryFactory.GetUncommittedSequenceNumberStart(_uncommittedToleranceSeconds));
 
         if (sequenceNumberEnd.HasValue)
         {

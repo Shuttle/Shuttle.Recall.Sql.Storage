@@ -17,5 +17,6 @@ public class Columns
     public static readonly Column<DateTime> DateRegistered = new("DateRegistered", DbType.DateTime);
     public static readonly Column<string> UniqueKey = new("UniqueKey", DbType.AnsiString);
     public static readonly Column<string> Rekey = new("Rekey", DbType.AnsiString);
+    public static readonly Column<int> UncommittedToleranceSeconds = new("UncommittedToleranceSeconds", DbType.Double);
     public static readonly Column<int> Version = new("Version", DbType.Int32);
 }

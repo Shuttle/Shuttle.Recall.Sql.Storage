@@ -98,7 +98,7 @@ ORDER BY
                 .AddParameter(Columns.SequenceNumberEnd, specification.SequenceNumberEnd);
     }
 
-    public IQuery GetUncommittedSequenceNumberStart()
+    public IQuery GetUncommittedSequenceNumberStart(double uncommittedToleranceSeconds)
     {
         return new Query($@"
 UPDATE
@@ -107,6 +107,8 @@ SET
     DateCommitted = GETUTCDATE()
 WHERE
     DateCommitted IS NULL
+AND
+    DateRegistered < DATEADD(SECOND, -1 * @UncommittedToleranceSeconds, GETUTCDATE());
 
 SELECT
     MIN(SequenceNumber)
@@ -114,7 +116,8 @@ FROM
     [{_sqlStorageOptions.Schema}].[PrimitiveEvent] (NOLOCK)
 WHERE
     DateCommitted IS NULL
-");
+")
+            .AddParameter(Columns.UncommittedToleranceSeconds, uncommittedToleranceSeconds);
     }
 
     public IQuery Commit(Guid id)
