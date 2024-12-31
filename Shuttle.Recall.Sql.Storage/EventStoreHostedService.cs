@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
@@ -11,6 +12,7 @@ namespace Shuttle.Recall.Sql.Storage;
 
 public class EventStoreHostedService : IHostedService
 {
+    private readonly ILogger<EventStoreHostedService> _logger;
     private readonly IDatabaseContextFactory _databaseContextFactory;
     private readonly DatabaseContextObserver _databaseContextObserver;
     private readonly Type _getEventStreamPipelineType = typeof(GetEventStreamPipeline);
@@ -21,8 +23,9 @@ public class EventStoreHostedService : IHostedService
     private readonly SaveEventStreamObserver _saveEventStreamObserver;
     private readonly SqlStorageOptions _sqlStorageOptions;
 
-    public EventStoreHostedService(IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory, IPrimitiveEventQueryFactory primitiveEventQueryFactory)
+    public EventStoreHostedService(ILogger<EventStoreHostedService> logger, IOptions<SqlStorageOptions> sqlStorageOptions, IPipelineFactory pipelineFactory, IDatabaseContextService databaseContextService, IDatabaseContextFactory databaseContextFactory, IPrimitiveEventQueryFactory primitiveEventQueryFactory)
     {
+        _logger = Guard.AgainstNull(logger);
         _pipelineFactory = Guard.AgainstNull(pipelineFactory);
         _databaseContextFactory = Guard.AgainstNull(databaseContextFactory);
 
@@ -37,12 +40,25 @@ public class EventStoreHostedService : IHostedService
     {
         if (!_sqlStorageOptions.ConfigureDatabase)
         {
+            _logger.LogInformation("[configure database] : disabled");
+
             return;
         }
 
-        await using (var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName))
+        var retry = true;
+        var retryCount = 0;
+
+        while (retry)
         {
-            await databaseContext.ExecuteAsync(new Query($@"
+            try
+            {
+                _logger.LogInformation($"[configure database] : attempt = {retryCount+1}");
+
+                await using (var databaseContext = _databaseContextFactory.Create(_sqlStorageOptions.ConnectionStringName))
+                {
+                    await databaseContext.ExecuteAsync(new Query($@"
+EXEC sp_getapplock @Resource = '{typeof(EventStoreHostedService).FullName}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = 15000;
+
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = '{_sqlStorageOptions.Schema}')
 BEGIN
     EXEC('CREATE SCHEMA {_sqlStorageOptions.Schema}');
@@ -163,7 +179,28 @@ IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[{_sqlSt
 BEGIN
     ALTER TABLE [{_sqlStorageOptions.Schema}].[PrimitiveEvent] CHECK CONSTRAINT [FK_PrimitiveEvent_EventType_EventTypeId]
 END
+
+EXEC sp_releaseapplock @Resource = '{typeof(EventStoreHostedService).FullName}', @LockOwner = 'Session';
 "), cancellationToken: cancellationToken);
+                }
+
+                retry = false;
+
+                _logger.LogInformation("[configure database] : complete");
+            }
+            catch
+            {
+                retryCount++;
+
+                if (retryCount > 3)
+                {
+                    _logger.LogInformation($"[configure database] : exception occurred / will retry");
+
+                    throw;
+                }
+
+                _logger.LogInformation($"[configure database] : exception occurred / will retry");
+            }
         }
     }
 

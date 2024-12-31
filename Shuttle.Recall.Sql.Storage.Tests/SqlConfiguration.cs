@@ -2,11 +2,11 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data;
 using Shuttle.Core.Data.Logging;
-using Shuttle.Recall.Logging;
 
 namespace Shuttle.Recall.Sql.Storage.Tests;
 
