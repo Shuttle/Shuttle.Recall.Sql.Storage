@@ -5,5 +5,5 @@ namespace Shuttle.Recall.Sql.Storage;
 
 public interface IPrimitiveEventQuery
 {
-    Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEventSpecification specification);
+    Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEvent.Specification specification);
 }

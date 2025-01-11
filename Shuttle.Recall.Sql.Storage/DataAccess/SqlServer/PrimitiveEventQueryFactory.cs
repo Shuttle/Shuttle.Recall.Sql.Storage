@@ -45,7 +45,7 @@ ORDER BY
             .AddParameter(Columns.Id, id);
     }
 
-    public IQuery Search(PrimitiveEventSpecification specification, IEnumerable<Guid> eventTypeIds)
+    public IQuery Search(PrimitiveEvent.Specification specification, IEnumerable<Guid> eventTypeIds)
     {
         Guard.AgainstNull(specification);
 

@@ -24,7 +24,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
         _eventTypeRepository = Guard.AgainstNull(eventTypeRepository);
     }
 
-    public async Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEventSpecification specification)
+    public async Task<IEnumerable<PrimitiveEvent>> SearchAsync(PrimitiveEvent.Specification specification)
     {
         var databaseContext = _databaseContextService.Active;
 
@@ -32,7 +32,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
 
         foreach (var eventType in specification.EventTypes)
         {
-            eventTypeIds.Add(await _eventTypeRepository.GetIdAsync(databaseContext, Guard.AgainstNullOrEmptyString(eventType.FullName)));
+            eventTypeIds.Add(await _eventTypeRepository.GetIdAsync(databaseContext, eventType));
         }
 
         var sequenceNumberEnd = await databaseContext.GetScalarAsync<long?>(_queryFactory.GetUncommittedSequenceNumberStart(_uncommittedToleranceSeconds));
