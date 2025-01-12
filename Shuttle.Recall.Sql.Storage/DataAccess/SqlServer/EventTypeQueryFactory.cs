@@ -16,33 +16,53 @@ public class EventTypeQueryFactory : IEventTypeQueryFactory
     public IQuery GetId(string typeName)
     {
         return new Query($@"
-merge
+MERGE
 	[{_sqlStorageOptions.Schema}].EventType t
-using
+USING
 	(
-		select @TypeName
+		SELECT @TypeName
 	) s (TypeName)
-on
+ON
 	s.TypeName = t.TypeName
-when not matched by target then
-	insert
+WHEN NOT MATCHED BY TARGET THEN
+	INSERT
 	(
 		Id,
 		TypeName
 	)
-	values
+	VALUES
 	(
 		newid(),
 		@TypeName
 	);
 
-select
+SELECT
 	Id
-from
+FROM
 	[{_sqlStorageOptions.Schema}].EventType
-where
+WHERE
 	TypeName = @TypeName
 ")
             .AddParameter(Columns.TypeName, typeName);
+    }
+
+    public IQuery Search(EventType.Specification specification)
+    {
+        Guard.AgainstNull(specification);
+
+        return new Query($@"
+SELECT {(specification.MaximumRows > 0 ? $"TOP {specification.MaximumRows}" : string.Empty)}
+    Id,
+    TypeName
+FROM
+    [{_sqlStorageOptions.Schema}].EventType
+WHERE
+(
+    @TypeNameMatch IS NULL
+    OR 
+    TypeName LIKE '%' + @TypeNameMatch + '%'
+)
+")
+            .AddParameter(Columns.TypeNameMatch, specification.TypeNameMatch);
     }
 }

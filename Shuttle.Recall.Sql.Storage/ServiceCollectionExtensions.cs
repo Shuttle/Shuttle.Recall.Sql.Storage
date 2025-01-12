@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IIdKeyQueryFactory, IdKeyQueryFactory>();
         services.AddSingleton<IIdKeyRepository, IdKeyRepository>();
         services.AddSingleton<IEventTypeRepository, EventTypeRepository>();
+        services.AddSingleton<IEventTypeQuery, EventTypeQuery>();
         services.AddSingleton<IEventTypeQueryFactory, EventTypeQueryFactory>();
         services.AddThreadDatabaseContextScope();
 

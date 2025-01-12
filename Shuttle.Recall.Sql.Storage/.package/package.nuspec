@@ -12,7 +12,7 @@
 		<readme>docs\README.md</readme>
 		<repository type="git" url="https://github.com/Shuttle/Shuttle.Recall.Sql.Storage.git" />
 		<description>Sql-based implementation of the event store Shuttle.Recall persistence interfaces.</description>
-		<copyright>Copyright (c) 2024, Eben Roux</copyright>
+		<copyright>Copyright (c) 2025, Eben Roux</copyright>
 		<tags>eventsourcing eventsource event-sourcing event-source eventstore event-store</tags>
 		<dependencies>
       <dependency id="Shuttle.Core.Data" version="20.0.0" />
