@@ -13,4 +13,5 @@ public interface IPrimitiveEventQueryFactory
     IQuery Search(PrimitiveEvent.Specification specification, IEnumerable<Guid> eventTypeIds);
     IQuery GetUncommittedSequenceNumberStart(double uncommittedToleranceSeconds);
     IQuery Commit(Guid id);
+    IQuery GetMaxSequenceNumber();
 }

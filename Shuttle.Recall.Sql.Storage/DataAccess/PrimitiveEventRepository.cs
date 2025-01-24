@@ -43,6 +43,11 @@ public class PrimitiveEventRepository : IPrimitiveEventRepository
         return result;
     }
 
+    public async ValueTask<long> GetMaxSequenceNumberAsync()
+    {
+        return await _databaseContextService.Active.GetScalarAsync<long>(_queryFactory.GetMaxSequenceNumber());
+    }
+
 
     public async Task<IEnumerable<PrimitiveEvent>> GetAsync(Guid id)
     {

@@ -135,6 +135,16 @@ AND
             .AddParameter(Columns.Id, id);
     }
 
+    public IQuery GetMaxSequenceNumber()
+    {
+        return new Query($@"
+SELECT 
+    ISNULL(MAX(SequenceNumber), 0)
+FROM 
+    [{_sqlStorageOptions.Schema}].[PrimitiveEvent]
+");
+    }
+
     public IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId)
     {
         return new Query($@"
