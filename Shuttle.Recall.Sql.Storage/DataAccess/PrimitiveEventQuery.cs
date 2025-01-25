@@ -37,7 +37,7 @@ public class PrimitiveEventQuery : IPrimitiveEventQuery
 
         var sequenceNumberEnd = await databaseContext.GetScalarAsync<long?>(_queryFactory.GetUncommittedSequenceNumberStart(_uncommittedToleranceSeconds));
 
-        if (sequenceNumberEnd.HasValue)
+        if (sequenceNumberEnd.HasValue && sequenceNumberEnd < specification.SequenceNumberEnd)
         {
             specification.WithSequenceNumberEnd(sequenceNumberEnd.Value - 1);
         }
