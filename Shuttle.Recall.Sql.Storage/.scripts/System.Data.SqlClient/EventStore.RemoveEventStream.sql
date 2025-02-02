@@ -1,1 +1,0 @@
-﻿delete from [dbo].[EventStore] where Id = @Id

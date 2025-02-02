@@ -63,9 +63,18 @@ namespace Shuttle.Recall.Sql.Storage {
         /// <summary>
         ///   Looks up a localized string similar to No &apos;SqlStorageOptions.ConnectionStringName&apos; has been specified..
         /// </summary>
-        public static string ConnectionStringException {
+        public static string ConnectionStringOptionException {
             get {
-                return ResourceManager.GetString("ConnectionStringException", resourceCulture);
+                return ResourceManager.GetString("ConnectionStringOptionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No &apos;SqlStorageOptions.Schema&apos; has been specified..
+        /// </summary>
+        public static string SchemaOptionException {
+            get {
+                return ResourceManager.GetString("SchemaOptionException", resourceCulture);
             }
         }
     }

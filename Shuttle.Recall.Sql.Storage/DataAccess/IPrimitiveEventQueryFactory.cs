@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public interface IPrimitiveEventQueryFactory
 {
-    public interface IPrimitiveEventQueryFactory
-    {
-        IQuery RemoveSnapshot(Guid id);
-        IQuery RemoveEventStream(Guid id);
-        IQuery GetEventStream(Guid id);
-        IQuery Search(PrimitiveEvent.Specification specification);
-        IQuery SaveEvent(PrimitiveEvent primitiveEvent);
-        IQuery SaveSnapshot(PrimitiveEvent primitiveEvent);
-        IQuery GetSequenceNumber(Guid id);
-    }
+    IQuery GetEventStream(Guid id);
+    IQuery GetSequenceNumber(Guid id);
+    IQuery RemoveEventStream(Guid id);
+    IQuery SaveEvent(PrimitiveEvent primitiveEvent, Guid eventTypeId);
+    IQuery Search(PrimitiveEvent.Specification specification, IEnumerable<Guid> eventTypeIds);
+    IQuery GetUncommittedSequenceNumberStart(double uncommittedToleranceSeconds);
+    IQuery Commit(Guid id);
+    IQuery GetMaxSequenceNumber();
 }

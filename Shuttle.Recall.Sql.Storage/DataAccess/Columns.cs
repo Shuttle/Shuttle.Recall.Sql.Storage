@@ -2,20 +2,22 @@
 using System.Data;
 using Shuttle.Core.Data;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public class Columns
 {
-	public class Columns
-	{
-		public static readonly Column<Guid> Id = new Column<Guid>("Id", DbType.Guid);
-		public static readonly Column<Guid> EventTypeId = new Column<Guid>("EventTypeId", DbType.Guid);
-		public static readonly Column<Guid> EventId = new Column<Guid>("EventId", DbType.Guid);
-        public static readonly Column<string> TypeName = new Column<string>("TypeName", DbType.AnsiString);
-        public static readonly Column<byte[]> EventEnvelope = new Column<byte[]>("EventEnvelope", DbType.Binary);
-		public static readonly Column<long> FromSequenceNumber = new Column<long>("FromSequenceNumber", DbType.Int64);
-		public static readonly Column<DateTime> DateRegistered = new Column<DateTime>("DateRegistered", DbType.DateTime);
-		public static readonly Column<bool> IsSnapshot = new Column<bool>("IsSnapshot", DbType.Boolean);
-        public static readonly Column<string> Key = new Column<string>("Key", DbType.AnsiString);
-        public static readonly Column<string> Rekey = new Column<string>("Rekey", DbType.AnsiString);
-        public static readonly Column<int> Version = new Column<int>("Version", DbType.Int32);
-	}
+    public static readonly Column<Guid?> CorrelationId = new("CorrelationId", DbType.Guid);
+    public static readonly Column<DateTime> DateRegistered = new("DateRegistered", DbType.DateTime);
+    public static readonly Column<Guid> EventTypeId = new("EventTypeId", DbType.Guid);
+    public static readonly Column<Guid> EventId = new("EventId", DbType.Guid);
+    public static readonly Column<byte[]> EventEnvelope = new("EventEnvelope", DbType.Binary);
+    public static readonly Column<Guid> Id = new("Id", DbType.Guid);
+    public static readonly Column<string> Rekey = new("Rekey", DbType.AnsiString);
+    public static readonly Column<long> SequenceNumberEnd = new("SequenceNumberEnd", DbType.Int64);
+    public static readonly Column<long> SequenceNumberStart = new("SequenceNumberStart", DbType.Int64);
+    public static readonly Column<string> TypeName = new("TypeName", DbType.AnsiString);
+    public static readonly Column<string> TypeNameMatch = new("TypeNameMatch", DbType.AnsiString);
+    public static readonly Column<string> UniqueKey = new("UniqueKey", DbType.AnsiString);
+    public static readonly Column<int> UncommittedToleranceSeconds = new("UncommittedToleranceSeconds", DbType.Double);
+    public static readonly Column<int> Version = new("Version", DbType.Int32);
 }

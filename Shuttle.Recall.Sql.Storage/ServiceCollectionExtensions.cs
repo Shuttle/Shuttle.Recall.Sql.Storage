@@ -5,39 +5,39 @@ using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Data.ThreadDatabaseContextScope;
 
-namespace Shuttle.Recall.Sql.Storage
+namespace Shuttle.Recall.Sql.Storage;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddSqlEventStorage(this IServiceCollection services, Action<SqlStorageBuilder>? builder = null)
     {
-        public static IServiceCollection AddSqlEventStorage(this IServiceCollection services, Action<SqlStorageBuilder> builder = null)
+        var sqlStorageBuilder = new SqlStorageBuilder(Guard.AgainstNull(services));
+
+        builder?.Invoke(sqlStorageBuilder);
+
+        services.TryAddSingleton<IValidateOptions<SqlStorageOptions>, SqlStorageOptionsValidator>();
+
+        services.AddOptions<SqlStorageOptions>().Configure(options =>
         {
-            Guard.AgainstNull(services, nameof(services));
+            options.ConnectionStringName = sqlStorageBuilder.Options.ConnectionStringName;
+            options.Schema = sqlStorageBuilder.Options.Schema;
+            options.ConfigureDatabase = sqlStorageBuilder.Options.ConfigureDatabase;
+            options.UncommittedTolerance = sqlStorageBuilder.Options.UncommittedTolerance;
+        });
 
-            var dataAccessBuilder = new SqlStorageBuilder(services);
+        services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
+        services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
+        services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
+        services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
+        services.AddSingleton<IIdKeyQueryFactory, IdKeyQueryFactory>();
+        services.AddSingleton<IIdKeyRepository, IdKeyRepository>();
+        services.AddSingleton<IEventTypeRepository, EventTypeRepository>();
+        services.AddSingleton<IEventTypeQuery, EventTypeQuery>();
+        services.AddSingleton<IEventTypeQueryFactory, EventTypeQueryFactory>();
+        services.AddThreadDatabaseContextScope();
 
-            builder?.Invoke(dataAccessBuilder);
+        services.AddHostedService<EventStoreHostedService>();
 
-            services.TryAddSingleton<IValidateOptions<SqlStorageOptions>, SqlStorageOptionsValidator>();
-
-            services.AddOptions<SqlStorageOptions>().Configure(options =>
-            {
-                options.ConnectionStringName = dataAccessBuilder.Options.ConnectionStringName;
-            });
-
-            services.AddSingleton<IScriptProvider, ScriptProvider>();
-            services.AddSingleton<IConcurrencyExceptionSpecification, ConcurrencyExceptionSpecification>();
-            services.AddSingleton<IPrimitiveEventRepository, PrimitiveEventRepository>();
-            services.AddSingleton<IPrimitiveEventQuery, PrimitiveEventQuery>();
-            services.AddSingleton<IPrimitiveEventQueryFactory, PrimitiveEventQueryFactory>();
-            services.AddSingleton<IKeyStoreQueryFactory, KeyStoreQueryFactory>();
-            services.AddSingleton<IKeyStore, KeyStore>();
-            services.AddSingleton<IEventTypeStore, EventTypeStore>();
-            services.AddSingleton<IEventTypeStoreQueryFactory, EventTypeStoreQueryFactory>();
-            services.AddThreadDatabaseContextScope();
-
-            services.AddHostedService<EventStoreHostedService>();
-
-            return services;
-        }
+        return services;
     }
 }

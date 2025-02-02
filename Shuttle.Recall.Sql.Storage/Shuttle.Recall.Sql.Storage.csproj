@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,47 +12,12 @@
     <None Include=".package\package.nuspec.template" />
     <None Include=".package\Shuttle.NuGetPackager.MSBuild.dll" />
     <None Include=".package\Shuttle.NuGetPackager.targets" />
-    <None Include=".scripts\.sqlserver\upgrade-13.1.0.sql" />
-    <None Include=".scripts\Microsoft.Data.SqlClient\EventStoreCreate.sql" />
-    <None Include=".scripts\.sqlserver\upgrade-11.0.0.sql" />
-    <None Include=".scripts\System.Data.SqlClient\EventStoreCreate.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Search.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetEventStream.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.RemoveEventStream.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventStore.Save.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\EventTypeStore.GetId.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.Add.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.Contains.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.ContainsId.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.ContainsKey.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.Get.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.Rekey.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.RemoveId.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\KeyStore.RemoveKey.sql" />
-    <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\SnapshotStore.Save.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetSequenceNumber.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.GetEventStream.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Search.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveEventStream.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.RemoveSnapshot.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventStore.Save.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\EventTypeStore.GetId.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.Rekey.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.ContainsId.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.ContainsKey.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.Add.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.Get.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.RemoveId.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\KeyStore.RemoveKey.sql" />
-    <EmbeddedResource Include=".scripts\System.Data.SqlClient\SnapshotStore.Save.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Shuttle.Core.Data" Version="17.0.0" />
-    <PackageReference Include="Shuttle.Core.Data.ThreadDatabaseContextScope" Version="17.0.0" />
-    <PackageReference Include="Shuttle.Recall" Version="18.0.0" />
+    <PackageReference Include="Shuttle.Core.Data" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Data.ThreadDatabaseContextScope" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Recall" Version="20.0.0" />
   </ItemGroup>
 
   <ItemGroup>

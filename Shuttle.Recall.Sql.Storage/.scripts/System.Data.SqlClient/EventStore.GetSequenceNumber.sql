@@ -1,1 +1,0 @@
-﻿select max(SequenceNumber) from [dbo].[EventStore] where Id = @Id
